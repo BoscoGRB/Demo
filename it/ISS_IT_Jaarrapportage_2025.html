@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISS IT — Jaarrapportage 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --iss-navy: #0a1628;
+    --iss-blue: #003d82;
+    --iss-accent: #e8302e;
+    --iss-gold: #f0a500;
+    --iss-light: #f5f7fa;
+    --iss-mid: #c8d4e8;
+    --text-primary: #0a1628;
+    --text-muted: #5a6a82;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --border: rgba(0,61,130,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--iss-light);
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--iss-navy);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.3);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px; color: white;
+    letter-spacing: -0.5px;
+  }
+  .nav-logo span { color: var(--iss-gold); }
+  .nav-links {
+    display: flex; gap: 4px;
+  }
+  .nav-links a {
+    color: var(--iss-mid); text-decoration: none;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.3px;
+    padding: 8px 16px; border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .nav-links a:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-badge {
+    background: var(--iss-accent);
+    color: white; font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* HERO */
+  .hero {
+    margin-top: 64px;
+    background: var(--iss-navy);
+    padding: 80px 48px 64px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(0,61,130,0.6) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -60px; left: 30%;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(232,48,46,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: 2.5px;
+    color: var(--iss-gold); text-transform: uppercase; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 2px; background: var(--iss-gold); }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800; color: white; line-height: 1.05;
+    letter-spacing: -1.5px; margin-bottom: 20px;
+  }
+  h1 em { font-style: normal; color: var(--iss-gold); }
+  .hero-sub {
+    font-size: 17px; color: var(--iss-mid);
+    max-width: 560px; line-height: 1.7; margin-bottom: 48px;
+  }
+  .hero-stats {
+    display: flex; gap: 48px; flex-wrap: wrap;
+  }
+  .hstat {
+    border-left: 3px solid var(--iss-gold);
+    padding-left: 16px;
+  }
+  .hstat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px; font-weight: 800; color: white; line-height: 1;
+  }
+  .hstat-label {
+    font-size: 13px; color: var(--iss-mid); margin-top: 4px;
+  }
+
+  /* SECTIONS */
+  section {
+    max-width: 1200px; margin: 0 auto;
+    padding: 64px 48px;
+  }
+  .section-header {
+    display: flex; align-items: baseline; gap: 16px;
+    margin-bottom: 40px;
+  }
+  .section-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--iss-accent);
+    letter-spacing: 2px;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 700;
+    color: var(--text-primary); letter-spacing: -0.5px;
+  }
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, var(--iss-blue), transparent);
+    margin-bottom: 48px; opacity: 0.2;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+    box-shadow: 0 2px 16px rgba(0,61,130,0.05);
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 1.5px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .card-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px; font-weight: 800; color: var(--iss-blue);
+    line-height: 1; letter-spacing: -1px;
+  }
+  .card-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    margin-bottom: 40px;
+  }
+  .kpi-accent .card-value { color: var(--iss-accent); }
+  .kpi-green .card-value { color: #1a8a4e; }
+  .kpi-gold .card-value { color: var(--iss-gold); }
+
+  /* CHART GRID */
+  .chart-grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-bottom: 24px;
+  }
+  .chart-grid-3 {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+  }
+  .chart-full { margin-bottom: 24px; }
+  .chart-wrap { position: relative; height: 280px; }
+  .chart-wrap-tall { position: relative; height: 340px; }
+
+  /* TEAM SECTION */
+  .team-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .team-card {
+    background: var(--card-bg);
+    border-radius: 14px; border: 1px solid var(--border);
+    padding: 24px; display: flex; flex-direction: column; gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .team-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,61,130,0.1); }
+  .team-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--iss-blue), #005ab3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 4px;
+  }
+  .team-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700; color: var(--text-primary);
+  }
+  .team-count {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px; font-weight: 800; color: var(--iss-blue);
+  }
+  .team-sla {
+    display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 20px; letter-spacing: 0.3px;
+  }
+  .tag-green { background: #e6f7ef; color: #1a8a4e; }
+  .tag-red { background: #fdf0f0; color: var(--iss-accent); }
+  .tag-blue { background: #e8f0fb; color: var(--iss-blue); }
+  .tag-gold { background: #fef8e6; color: #b07400; }
+
+  /* INSIGHT BOXES */
+  .insight-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px;
+  }
+  .insight-box {
+    background: var(--iss-navy);
+    border-radius: 14px; padding: 24px 28px;
+    position: relative; overflow: hidden;
+  }
+  .insight-box::after {
+    content: ''; position: absolute;
+    top: -30px; right: -30px; width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .insight-box.accent { background: linear-gradient(135deg, var(--iss-accent), #c02020); }
+  .insight-box.gold { background: linear-gradient(135deg, #a07800, #c49000); }
+  .insight-box.teal { background: linear-gradient(135deg, #0a6e5c, #0d8a73); }
+  .insight-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .insight-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 700; color: white;
+    line-height: 1.3; margin-bottom: 8px;
+  }
+  .insight-body { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+
+  /* PROJECTS */
+  .proj-filter {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px;
+  }
+  .filter-btn {
+    font-size: 13px; font-weight: 500;
+    padding: 8px 18px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: white; color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--iss-blue); color: white; border-color: var(--iss-blue);
+  }
+  .proj-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .proj-card {
+    background: var(--card-bg);
+    border-radius: 14px; border: 1px solid var(--border);
+    padding: 20px 22px;
+    border-top: 3px solid var(--iss-blue);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .proj-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,61,130,0.09); }
+  .proj-card.seg-it { border-top-color: var(--iss-blue); }
+  .proj-card.seg-op { border-top-color: var(--iss-gold); }
+  .proj-card.seg-pc { border-top-color: #1a8a4e; }
+  .proj-card.seg-fin { border-top-color: var(--iss-accent); }
+  .proj-card.seg-com { border-top-color: #7b3fc4; }
+  .proj-seg {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted);
+  }
+  .proj-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 10px; line-height: 1.4;
+  }
+  .proj-desc {
+    font-size: 13px; color: var(--text-muted); line-height: 1.55; margin-bottom: 14px;
+  }
+  .proj-meta {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .proj-owner {
+    font-size: 12px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px;
+    margin-left: auto;
+  }
+  .proj-owner::before {
+    content: ''; display: inline-block;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--iss-blue);
+    font-size: 10px; color: white;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* PILLAR SECTION */
+  .pillar-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+  }
+  .pillar-card {
+    background: white; border-radius: 14px; border: 1px solid var(--border);
+    padding: 28px 32px; display: flex; gap: 20px;
+  }
+  .pillar-icon {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+  }
+  .pillar-icon.p1 { background: linear-gradient(135deg, #e8f0fb, #c5d7f5); }
+  .pillar-icon.p2 { background: linear-gradient(135deg, #e6f7ef, #b8ebd4); }
+  .pillar-icon.p3 { background: linear-gradient(135deg, #fef8e6, #fce9a0); }
+  .pillar-icon.p4 { background: linear-gradient(135deg, #fdf0f0, #f8c4c4); }
+  .pillar-body {}
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;
+  }
+  .pillar-text { font-size: 13.5px; color: var(--text-muted); line-height: 1.65; }
+
+  /* FOOTER */
+  footer {
+    background: var(--iss-navy);
+    text-align: center; padding: 40px 48px;
+    font-size: 13px; color: var(--iss-mid);
+  }
+  footer strong { color: white; }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* BG SECTIONS */
+  .bg-light { background: var(--iss-light); }
+  .bg-white { background: white; }
+  .section-bg { padding: 64px 0; }
+  .section-bg > section { padding-top: 0; padding-bottom: 0; }
+
+  /* PROGRESS BARS */
+  .prog-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .prog-label { font-size: 13px; color: var(--text-muted); width: 150px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prog-bar-wrap { flex: 1; background: #eef2f8; border-radius: 4px; height: 8px; overflow: hidden; }
+  .prog-bar { height: 100%; border-radius: 4px; background: var(--iss-blue); transition: width 1.2s ease; }
+  .prog-val { font-size: 13px; font-weight: 600; color: var(--text-primary); width: 50px; text-align: right; }
+
+  /* MONTH TABLE */
+  .month-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .month-table th {
+    text-align: left; padding: 10px 14px; font-size: 11px;
+    font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--text-muted); border-bottom: 2px solid var(--border);
+  }
+  .month-table td {
+    padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-primary);
+  }
+  .month-table tr:hover td { background: #f7f9fc; }
+  .heat { border-radius: 4px; display: inline-block; padding: 2px 8px; font-weight: 600; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    section { padding: 48px 24px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid-2, .chart-grid-3, .team-grid, .proj-grid, .pillar-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ISS <span>IT</span></div>
+  <div class="nav-links">
+    <a href="#overview">Overzicht</a>
+    <a href="#tickets">Tickets</a>
+    <a href="#teams">Teams</a>
+    <a href="#projects">Projecten</a>
+    <a href="#insights">Inzichten</a>
+  </div>
+  <div class="nav-badge">2025</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Jaarrapportage · IT Afdeling</div>
+    <h1>Een jaar van<br><em>bouwen aan fundament</em></h1>
+    <p class="hero-sub">
+      In 2025 heeft het IT-team van ISS 7.285 tickets verwerkt, 40 projecten afgerond en een breed scala aan IT-initiatieven geleverd — van infrastructuur tot AI-toepassingen.
+    </p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num">7.285</div><div class="hstat-label">Tickets afgehandeld</div></div>
+      <div class="hstat"><div class="hstat-num">40</div><div class="hstat-label">Projecten afgerond</div></div>
+      <div class="hstat"><div class="hstat-num">15</div><div class="hstat-label">Medewerkers</div></div>
+      <div class="hstat"><div class="hstat-num">~14.100</div><div class="hstat-label">Beschikbare werkuren</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW KPIs -->
+<div class="bg-white section-bg" id="overview">
+<section>
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2>Kerncijfers 2025</h2>
+  </div>
+  <div class="section-divider"></div>
+
+  <div class="kpi-grid reveal">
+    <div class="card">
+      <div class="card-title">Totaal tickets</div>
+      <div class="card-value">7.285</div>
+      <div class="card-sub">Alle tickets status: Gesloten ✓</div>
+    </div>
+    <div class="card kpi-green">
+      <div class="card-title">100% afgehandeld</div>
+      <div class="card-value">0</div>
+      <div class="card-sub">Open tickets — volledige resolutie</div>
+    </div>
+    <div class="card kpi-accent">
+      <div class="card-title">Gem. doorlooptijd</div>
+      <div class="card-value">6,6u</div>
+      <div class="card-sub">Mediaan oplossingstijd</div>
+    </div>
+    <div class="card kpi-gold">
+      <div class="card-title">SLA-naleving</div>
+      <div class="card-value">71,7%</div>
+      <div class="card-sub">Within SLA (van gemeten tickets)</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid reveal" style="grid-template-columns: repeat(4,1fr)">
+    <div class="card">
+      <div class="card-title">Projecten afgerond</div>
+      <div class="card-value" style="color:var(--iss-blue)">40</div>
+      <div class="card-sub">Alle projecten status: Done</div>
+    </div>
+    <div class="card">
+      <div class="card-title">FTE beschikbaar</div>
+      <div class="card-value" style="color:var(--iss-blue)">14,1</div>
+      <div class="card-sub">13 FT + 2 × 0,8 = 14,6 FTE</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tickets / FTE</div>
+      <div class="card-value" style="color:var(--iss-blue)">515</div>
+      <div class="card-sub">Gemiddeld per medewerker</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Drukste maand</div>
+      <div class="card-value" style="color:var(--iss-blue)">Sep</div>
+      <div class="card-sub">729 tickets in september</div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- TICKETS SECTION -->
+<div class="bg-light section-bg" id="tickets">
+<section>
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2>Ticketanalyse</h2>
+  </div>
+  <div class="section-divider"></div>
+
+  <!-- Monthly volume -->
+  <div class="chart-full card reveal">
+    <div class="card-title">Ticketvolume per maand</div>
+    <div class="chart-wrap">
+      <canvas id="monthlyChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid-2 reveal">
+    <!-- Domain distribution -->
+    <div class="card">
+      <div class="card-title">Verdeling per team/domein</div>
+      <div class="chart-wrap"><canvas id="domainChart"></canvas></div>
+    </div>
+    <!-- SLA donut -->
+    <div class="card">
+      <div class="card-title">SLA-status (gemeten tickets)</div>
+      <div class="chart-wrap"><canvas id="slaChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Avg resolution per group -->
+  <div class="card reveal">
+    <div class="card-title" style="margin-bottom:20px">Gemiddelde oplossingstijd per team (uren)</div>
+    <div id="resolutionBars"></div>
+  </div>
+
+  <!-- Monthly table -->
+  <div class="card reveal" style="margin-top:24px">
+    <div class="card-title" style="margin-bottom:16px">Maandoverzicht ticketvolume</div>
+    <table class="month-table">
+      <thead>
+        <tr>
+          <th>Maand</th>
+          <th>Tickets</th>
+          <th>Volume indicator</th>
+          <th>Opmerking</th>
+        </tr>
+      </thead>
+      <tbody id="monthTable"></tbody>
+    </table>
+  </div>
+</section>
+</div>
+
+<!-- TEAMS SECTION -->
+<div class="bg-white section-bg" id="teams">
+<section>
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2>Teams & Domeinen</h2>
+  </div>
+  <div class="section-divider"></div>
+  <div class="team-grid reveal" id="teamGrid"></div>
+</section>
+</div>
+
+<!-- PROJECTS SECTION -->
+<div class="bg-light section-bg" id="projects">
+<section>
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2>Projecten 2025</h2>
+  </div>
+  <div class="section-divider"></div>
+  <div class="proj-filter reveal" id="projFilter"></div>
+  <div class="proj-grid reveal" id="projGrid"></div>
+</section>
+</div>
+
+<!-- PILLARS SECTION -->
+<div class="bg-white section-bg">
+<section>
+  <div class="section-header reveal">
+    <span class="section-num">05</span>
+    <h2>Bijdrage aan het IT-landschap</h2>
+  </div>
+  <div class="section-divider"></div>
+
+  <div class="pillar-grid reveal">
+    <div class="pillar-card">
+      <div class="pillar-icon p1">🏗️</div>
+      <div class="pillar-body">
+        <div class="pillar-title">Stabiele infrastructuur & connectiviteit</div>
+        <div class="pillar-text">
+          De migratie van ADSL naar VDSL, Windows 10→11-uitrol, serverupdates en de optimalisatie van de MER-ruimte leggen een solide technische basis. Een stabiel netwerk en up-to-date systemen verminderen uitval, verbeteren response­tijden en vormen de randvoorwaarde voor digitale groei.
+        </div>
+      </div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon p2">🔐</div>
+      <div class="pillar-body">
+        <div class="pillar-title">Veiligheid & compliance</div>
+        <div class="pillar-text">
+          De ISO-audit, implementatie van Paxton Security, IAM/AFAS UPN-sync en standaardisering van auditrequirements borgen dat ISS aantoonbaar voldoet aan beveiligings­normen. Usermanagement en toegangscontrole beperken risico's en versterken het vertrouwen van stakeholders.
+        </div>
+      </div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon p3">⚡</div>
+      <div class="pillar-body">
+        <div class="pillar-title">Operationele effectiviteit</div>
+        <div class="pillar-text">
+          Smartsheets, Alumio (integratie­platform), WFM Server-migratie, Ticketmaster-integratie en de onboarding van 6 nieuwe klanten (Keune, ICC, Thermo Fisher, Velux, Arcadis, Altura) verhogen de operationele wendbaarheid. Data stroomt sneller, processen zijn geautomatiseerd en teams kunnen meer doen met minder handwerk.
+        </div>
+      </div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon p4">🤖</div>
+      <div class="pillar-body">
+        <div class="pillar-title">Innovatie & datagerichte organisatie</div>
+        <div class="pillar-text">
+          AI for Recruitment, de CAO Chatbot, IT Asset Management en het Udemy-leerplan positioneren ISS als een lerende, datagedreven organisatie. Door AI in te zetten voor P&C en operational intelligence bouwt ISS aan een concurrentievoordeel dat schaalbaar is richting de toekomst.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- INSIGHTS -->
+<div class="bg-light section-bg" id="insights">
+<section>
+  <div class="section-header reveal">
+    <span class="section-num">06</span>
+    <h2>Wat het ticketvolume zegt over de organisatie</h2>
+  </div>
+  <div class="section-divider"></div>
+
+  <div class="insight-grid reveal">
+    <div class="insight-box">
+      <div class="insight-label">Inzicht 1</div>
+      <div class="insight-title">IT Support is het kloppend hart</div>
+      <div class="insight-body">
+        Met 3.240 tickets (44% van het totaal) draagt IT Support de zwaarste last. Dit volume weerspiegelt de omvang en afhankelijkheid van de organisatie van IT. Het is tegelijkertijd een signaal: verdere selfservice-mogelijkheden of kennisbankintegratie kunnen druk structureel verlichten.
+      </div>
+    </div>
+    <div class="insight-box accent">
+      <div class="insight-label">Inzicht 2</div>
+      <div class="insight-title">100% resolutie is uitzonderlijk</div>
+      <div class="insight-body">
+        Geen enkel ticket staat open. Dit geeft aan dat het team niet alleen reageert, maar ook daadwerkelijk afrondt. In combinatie met een mediaanoplossingstijd van 6,6 uur is dit een teken van een volwassen serviceorganisatie.
+      </div>
+    </div>
+    <div class="insight-box teal">
+      <div class="insight-label">Inzicht 3</div>
+      <div class="insight-title">Seizoenspatroon zichtbaar</div>
+      <div class="insight-body">
+        September piekte met 729 tickets — dit valt samen met het nieuwe seizoen, onboardings na de zomer en de start van Q4-projecten. Een voorspelbaar patroon dat kan worden gebruikt voor capaciteitsplanning in 2026.
+      </div>
+    </div>
+    <div class="insight-box gold">
+      <div class="insight-label">Inzicht 4</div>
+      <div class="insight-title">SLA-verbetering: kans voor 2026</div>
+      <div class="insight-body">
+        28,3% van de gemeten tickets overschreed de SLA. Vooral Fin & Inkoop (gemiddeld 366 uur!) en P&C (148 uur) vragen om herziening van prioriterings­regels of capaciteitsversterking. Rostar en ICT-middelen laten ook verhoogde overschrijdingen zien.
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>ISS · IT Afdeling · Jaarrapportage 2025</strong><br>
+  Opgesteld voor de CEO — 15 medewerkers, 40 projecten, 7.285 tickets, één team.
+</footer>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const months = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+const monthlyVolume = [587,529,693,637,603,605,535,565,729,666,566,570];
+const monthRemarks = [
+  'Rustige start na feestdagen',
+  'Lichte dip',
+  'Eerste piek Q1',
+  'Gestage aanloop Q2',
+  'Stabiel volume',
+  'Afdeling IT piek (onboardings)',
+  'Zomerdip',
+  'Zomer loopt door',
+  '🔺 Jaarpiek — onboardings & Q4 start',
+  'Sterk Q4 volume',
+  'Stabiel eindejaar',
+  'Rustig december'
+];
+
+const teams = [
+  { name: 'IT Support', count: 3240, pct: 44.5, slaOk: 773, slaVio: 236, avgH: 21.7, icon: '💻' },
+  { name: 'Coupa', count: 1143, pct: 15.7, slaOk: 710, slaVio: 209, avgH: 26.8, icon: '🛒' },
+  { name: 'POS', count: 961, pct: 13.2, slaOk: 602, slaVio: 212, avgH: 33.6, icon: '🖥️' },
+  { name: 'Rostar', count: 621, pct: 8.5, slaOk: 128, slaVio: 172, avgH: 42.1, icon: '📋' },
+  { name: 'ICT middelen', count: 552, pct: 7.6, slaOk: 209, slaVio: 248, avgH: 70.8, icon: '🖨️' },
+  { name: 'FMS@ISS', count: 551, pct: 7.6, slaOk: 471, slaVio: 26, avgH: 17.8, icon: '🏢' },
+  { name: 'Afdeling IT', count: 114, pct: 1.6, slaOk: 16, slaVio: 6, avgH: 71.7, icon: '⚙️' },
+  { name: 'P&C', count: 78, pct: 1.1, slaOk: 20, slaVio: 42, avgH: 148.0, icon: '👥' },
+  { name: 'Fin & Inkoop', count: 23, pct: 0.3, slaOk: 11, slaVio: 6, avgH: 365.6, icon: '💰' },
+];
+
+const projects = [
+  { seg: 'IT', name: 'Windows 10 → 11 uitrol', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Volledige migratie van alle werkplekken naar Windows 11. Verhoogt beveiliging, verbetert prestaties en sluit aan op moderne softwarevereisten.' },
+  { seg: 'IT', name: 'ADSL → VDSL', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Upgraden van alle kantoorlocaties naar VDSL-verbindingen. Snellere en stabielere connectiviteit als randvoorwaarde voor cloud- en SaaS-diensten.' },
+  { seg: 'IT', name: 'Implementatie Alumio', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Alumio is een cloud-native integratiepaltform dat systemen als AFAS, Coupa en ERP koppelt. Vermindert handmatige datafeed en verhoogt data-integriteit.' },
+  { seg: 'IT', name: 'IT Asset Management', owner: 'Roy', niveau: 'Tactisch',
+    desc: 'Centraal beheer van alle hardware- en software-assets. Geeft zichtbaarheid op licentiegebruik, vervanging en compliance.' },
+  { seg: 'IT', name: 'Ticketmaster integratie', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Koppeling van ticketingsysteem met andere platformen zodat meldingen automatisch worden doorgestuurd en gerapporteerd.' },
+  { seg: 'IT', name: 'Usermanagement alle applicaties', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Inrichten van centraal usermanagement voor alle applicaties in beheer. Verkleint het risico op onnodige toegangsrechten en versnelt onboarding/offboarding.' },
+  { seg: 'IT', name: 'IAM – AFAS UPN Sync', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Identity & Access Management: automatische synchronisatie van gebruikersprincipals vanuit AFAS naar Azure AD. Elimineert handmatig accountbeheer.' },
+  { seg: 'IT', name: 'ISO-audit', owner: 'Joey', niveau: 'Tactisch',
+    desc: 'Voorbereiding en uitvoering van de ISO-audit. Aantoonbare compliance met internationale normen vergroot klantvertrouwen en contractposities.' },
+  { seg: 'IT', name: 'Optimalisatie MER-ruimte', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Herinrichting van de serverruimte voor betere koeling, kabelmanagement en toegankelijkheid. Vermindert downtime-risico\'s.' },
+  { seg: 'IT', name: 'Onboarding Smartsheets', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Uitrol van Smartsheets als werkplatform voor projectbeheer en samenwerking. Vervangt losse spreadsheets en verhoogt transparantie.' },
+  { seg: 'IT', name: 'Server management & updates', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Gestructureerd patchmanagement en server-onderhoud. Minimaliseert kwetsbaarheden en zorgt voor stabiele operationele omgeving.' },
+  { seg: 'IT', name: 'IT user onboarding', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Gestandaardiseerd onboardingproces voor nieuwe IT-gebruikers. Verkort time-to-productive en verhoogt kwaliteit van dag-één-ervaring.' },
+  { seg: 'IT', name: 'Inrichting Scrumboard agile', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Agile werken ingericht met een Scrumboard voor het applicatieteam. Verhoogt voorspelbaarheid van deliveries en teamverantwoordelijkheid.' },
+  { seg: 'IT', name: 'Fresh: dynamische formulieren', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Optimalisatie van Fresh Service met dynamische formulieren voor alle systemen. Verbetert datakwaliteit bij ticketaanmaak.' },
+  { seg: 'IT', name: 'Aansluiting gebruikersgroepen', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Structurele aansluiting van gebruikersgroepen bij applicatiebeheer, zodat wensen en wijzigingen beter worden kanaal­gestuurd.' },
+  { seg: 'IT', name: 'Overdracht FIT/ICE naar SD', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Kennisoverdracht en formele transitie van werkzaamheden naar de servicedesk. Verhoogt schaalbaarheid en verlaagt afhankelijkheid.' },
+  { seg: 'IT', name: 'Onboarding Udemy – Leerplan IT', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Udemy Business uitgerold met een gerichte leerpad voor IT-medewerkers. Investering in kennis en aantrekkelijkheid als werkgever.' },
+  { seg: 'IT', name: 'Audit requirements standaardiseren', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Uniforme auditcriteria gedefinieerd voor alle applicaties. Vermindert revisiewerk en maakt externe audits efficiënter.' },
+  { seg: 'OP', name: 'Implementatie Paxton Security', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Toegangscontrole op basis van Paxton geïmplementeerd. Verhoogt fysieke beveiliging van gebouwen en beperkt ongeautoriseerde toegang.' },
+  { seg: 'OP', name: 'Implementatie Clickshare', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Draadloze presentatieoplossing uitgerold in vergaderruimtes. Versnelt vergaderingen en ondersteunt hybride samenwerken.' },
+  { seg: 'OP', name: 'Implementatie Humly', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Humly roomdisplays ingezet voor ruimtemanagement. Geeft real-time inzicht in bezetting en vereenvoudigt reserveringen.' },
+  { seg: 'OP', name: 'Implementatie Digilocks', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Slimme kluisoplossing voor lockers. Verbetert personeelservaring en beveiliging van persoonlijke bezittingen op de werkvloer.' },
+  { seg: 'OP', name: 'Implementatie Narrow Casting', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Digitale schermen voor interne communicatie ingericht. Verhoogt bereik van berichten op de werkvloer.' },
+  { seg: 'OP', name: 'WFM Server migratie', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'Workforce Management server gemigreerd naar nieuwe omgeving. Borgt continuïteit van roostering- en planningsprocessen.' },
+  { seg: 'OP', name: 'Draytek', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Vervanging en optimalisatie van Draytek-routers op locaties. Stabielere en beter beheerbare netwerkverbindingen.' },
+  { seg: 'OP', name: 'Toegangscontrole / visitor mgmt', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Digitaal bezoekersregistratiesysteem ingevoerd. Vergroot veiligheid en professionele uitstraling bij ontvangst van bezoekers.' },
+  { seg: 'OP', name: 'Conveini de Meern', owner: 'App-team', niveau: 'Operationeel',
+    desc: 'IT-onboarding voor Conveini op locatie De Meern. Structurele aansluiting van nieuwe klant op ISS-systemen.' },
+  { seg: 'OP', name: 'Transitieplan alle applicaties', owner: 'Roy', niveau: 'Operationeel',
+    desc: 'Documentatie en uitvoering van transitieplan voor alle applicaties in beheer. Maakt overdrachten beheersbaar en herhaalbaar.' },
+  { seg: 'OP', name: 'Onboarding Keune', owner: 'App-team', niveau: 'Operationeel', desc: 'Volledige IT-onboarding van Keune als nieuwe klant op het ISS-platform.' },
+  { seg: 'OP', name: 'Onboarding ICC', owner: 'App-team', niveau: 'Operationeel', desc: 'IT-onboarding ICC: aansluiting op applicaties, toegangsrechten en servicedesk.' },
+  { seg: 'OP', name: 'Onboarding Thermo Fischer', owner: 'App-team', niveau: 'Operationeel', desc: 'Thermo Fischer succesvol aangesloten op ISS IT-systemen en serviceportaal.' },
+  { seg: 'OP', name: 'Onboarding Velux', owner: 'App-team', niveau: 'Operationeel', desc: 'Velux-locaties geïntegreerd in het ISS IT-landschap.' },
+  { seg: 'OP', name: 'Onboarding Arcadis', owner: 'App-team', niveau: 'Operationeel', desc: 'Arcadis onboardingtraject afgerond, inclusief systeemtoegang en gebruikersbeheer.' },
+  { seg: 'OP', name: 'Onboarding Altura', owner: 'Gianni', niveau: 'Operationeel', desc: 'Altura als nieuwe commerciële klant op het platform aangesloten.' },
+  { seg: 'P&C', name: 'AI for Recruitment', owner: 'Joey', niveau: 'Tactisch',
+    desc: 'AI-toepassing geïmplementeerd ter ondersteuning van het wervingsproces. Versnelt screening en verbetert kandidaatervaring.' },
+  { seg: 'P&C', name: 'CAO Chatbot (AI)', owner: 'App-team', niveau: 'Tactisch',
+    desc: 'AI-gedreven chatbot voor veelgestelde vragen over de CAO. Verlicht druk op HR en geeft medewerkers 24/7 toegang tot informatie.' },
+  { seg: 'P&C', name: 'Bedrijfsmiddelen (assets + keycards)', owner: 'App-team', niveau: 'Tactisch',
+    desc: 'Digitaal beheer van leengebruik, assets en toegangspassen. Vergroot overzicht en verantwoording van middelen.' },
+  { seg: 'FIN', name: 'Mekong', owner: 'Gianni', niveau: 'Operationeel',
+    desc: 'Implementatie van Mekong ten behoeve van customer experience optimalisatie. Verbetert klantgerichte processen binnen Finance.' },
+  { seg: 'OP-PROC', name: 'Hired@ISS', owner: 'Gianni', niveau: 'Tactisch',
+    desc: 'Platform voor interne mobiliteit en recruitment geïmplementeerd. Verhoogt interne doorstroom en vermindert externe wervingskosten.' },
+  { seg: 'IT', name: 'Implementatie Smartsheets Tech. Services', owner: 'Joey', niveau: 'Tactisch',
+    desc: 'Smartsheets uitgerold voor Technical Services. Verbetert projectzichtbaarheid en samenwerking binnen het team.' },
+];
+
+const segColors = { IT: 'seg-it', OP: 'seg-op', 'P&C': 'seg-pc', FIN: 'seg-fin', 'OP-PROC': 'seg-op', COM: 'seg-com' };
+const segLabels = { IT: 'IT', OP: 'Operations', 'P&C': 'P&C', FIN: 'Finance', 'OP-PROC': 'Procurement', COM: 'Commercial' };
+
+// ─── MONTHLY CHART ───────────────────────────────────────────────────────────
+const maxVol = Math.max(...monthlyVolume);
+new Chart(document.getElementById('monthlyChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Tickets',
+      data: monthlyVolume,
+      backgroundColor: monthlyVolume.map(v => v === maxVol ? '#e8302e' : '#003d82'),
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.raw} tickets` } }
+    },
+    scales: {
+      y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans' } } },
+      x: { grid: { display: false }, ticks: { font: { family: 'DM Sans' } } }
+    }
+  }
+});
+
+// ─── DOMAIN CHART ────────────────────────────────────────────────────────────
+new Chart(document.getElementById('domainChart'), {
+  type: 'doughnut',
+  data: {
+    labels: teams.map(t => t.name),
+    datasets: [{
+      data: teams.map(t => t.count),
+      backgroundColor: ['#003d82','#1a5faa','#2e7ac8','#4a93d8','#e8302e','#f0a500','#1a8a4e','#7b3fc4','#aab8cc'],
+      borderWidth: 2, borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { font: { family: 'DM Sans', size: 12 }, boxWidth: 14 } },
+      tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} (${teams[ctx.dataIndex].pct}%)` } }
+    }
+  }
+});
+
+// ─── SLA CHART ───────────────────────────────────────────────────────────────
+new Chart(document.getElementById('slaChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Within SLA', 'SLA Violated', 'Niet gemeten'],
+    datasets: [{
+      data: [2940, 1157, 3188],
+      backgroundColor: ['#1a8a4e','#e8302e','#c8d4e8'],
+      borderWidth: 2, borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { font: { family: 'DM Sans', size: 12 }, boxWidth: 14 } },
+      tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} tickets` } }
+    }
+  }
+});
+
+// ─── RESOLUTION BARS ─────────────────────────────────────────────────────────
+const resEl = document.getElementById('resolutionBars');
+const maxHours = 365.6;
+const barColors = [
+  '#1a8a4e','#003d82','#2e7ac8','#f0a500','#4a93d8','#003d82','#aab8cc','#e8302e','#c02020'
+];
+const sortedTeams = [...teams].sort((a,b) => b.avgH - a.avgH);
+sortedTeams.forEach((t, i) => {
+  const pct = (t.avgH / maxHours * 100).toFixed(1);
+  const color = t.avgH > 100 ? '#e8302e' : t.avgH > 50 ? '#f0a500' : '#003d82';
+  resEl.innerHTML += `
+    <div class="prog-row">
+      <div class="prog-label">${t.icon} ${t.name}</div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar" style="width:${pct}%;background:${color}" data-target="${pct}"></div>
+      </div>
+      <div class="prog-val">${t.avgH}u</div>
+    </div>`;
+});
+
+// ─── MONTH TABLE ─────────────────────────────────────────────────────────────
+const tableEl = document.getElementById('monthTable');
+monthlyVolume.forEach((v, i) => {
+  const heat = v >= 700 ? 'background:#fdf0f0;color:#c02020' :
+               v >= 650 ? 'background:#fff5e6;color:#a06000' : 'background:#e8f0fb;color:#003d82';
+  tableEl.innerHTML += `
+    <tr>
+      <td style="font-weight:600">${months[i]}</td>
+      <td><span class="heat" style="${heat}">${v}</span></td>
+      <td>
+        <div style="display:flex;gap:3px">
+          ${Array(Math.round(v/100)).fill(0).map((_,j) => `<div style="width:${j===Math.round(v/100)-1?'partial':'16'}px;height:16px;background:${v>=700?'#e8302e':v>=650?'#f0a500':'#003d82'};border-radius:3px;width:16px;opacity:${0.4+j*0.1}"></div>`).join('')}
+        </div>
+      </td>
+      <td style="color:var(--text-muted);font-size:13px">${monthRemarks[i]}</td>
+    </tr>`;
+});
+
+// ─── TEAM GRID ───────────────────────────────────────────────────────────────
+const teamEl = document.getElementById('teamGrid');
+teams.forEach(t => {
+  const slaTotal = t.slaOk + t.slaVio;
+  const slaPct = slaTotal > 0 ? Math.round(t.slaOk / slaTotal * 100) : null;
+  const slaTag = slaPct === null ? `<span class="tag tag-blue">Geen SLA data</span>` :
+    slaPct >= 80 ? `<span class="tag tag-green">SLA ${slaPct}% ✓</span>` :
+    slaPct >= 60 ? `<span class="tag tag-gold">SLA ${slaPct}%</span>` :
+    `<span class="tag tag-red">SLA ${slaPct}% ⚠</span>`;
+  const avgTag = t.avgH <= 24 ? `<span class="tag tag-green">Ø ${t.avgH}u</span>` :
+    t.avgH <= 72 ? `<span class="tag tag-gold">Ø ${t.avgH}u</span>` :
+    `<span class="tag tag-red">Ø ${t.avgH}u</span>`;
+  teamEl.innerHTML += `
+    <div class="team-card">
+      <div class="team-icon">${t.icon}</div>
+      <div class="team-name">${t.name}</div>
+      <div class="team-count">${t.count.toLocaleString('nl-NL')} <span style="font-size:14px;font-weight:400;color:var(--text-muted)">tickets</span></div>
+      <div style="font-size:13px;color:var(--text-muted)">${t.pct}% van totaal</div>
+      <div class="team-sla">${slaTag}${avgTag}</div>
+    </div>`;
+});
+
+// ─── PROJECTS ────────────────────────────────────────────────────────────────
+const segs = ['Alles', ...new Set(projects.map(p => segLabels[p.seg] || p.seg))];
+const filterEl = document.getElementById('projFilter');
+segs.forEach(s => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn' + (s === 'Alles' ? ' active' : '');
+  btn.textContent = s;
+  btn.onclick = () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProjects(s);
+  };
+  filterEl.appendChild(btn);
+});
+
+function renderProjects(filter) {
+  const grid = document.getElementById('projGrid');
+  const filtered = filter === 'Alles' ? projects : projects.filter(p => (segLabels[p.seg] || p.seg) === filter);
+  grid.innerHTML = filtered.map(p => `
+    <div class="proj-card ${segColors[p.seg] || 'seg-it'}">
+      <div class="proj-seg">${segLabels[p.seg] || p.seg}</div>
+      <div class="proj-name">${p.name}</div>
+      <div class="proj-desc">${p.desc}</div>
+      <div class="proj-meta">
+        <span class="tag tag-blue">${p.niveau}</span>
+        <span class="proj-owner" style="font-size:12px;color:var(--text-muted);margin-left:auto">👤 ${p.owner}</span>
+      </div>
+    </div>`).join('');
+}
+renderProjects('Alles');
+
+// ─── SCROLL REVEAL ───────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
