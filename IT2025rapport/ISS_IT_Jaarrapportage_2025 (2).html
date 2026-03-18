@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISS IT — Jaarrapportage 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  /* ISS Official */
+  --navy:    #030037;
+  --persian: #153ac7;
+  --azure:   #0084ff;
+  --sand:    #DECFB9;
+  --grey:    #858585;
+  --white:   #ffffff;
+
+  /* Derived tones */
+  --navy-mid:   #0a0860;
+  --navy-light: #1a1870;
+  --persian-s:  #eaedfc;  /* persian tint bg */
+  --azure-s:    #e0f0ff;  /* azure tint bg */
+  --sand-deep:  #c8b89a;
+  --sand-light: #f5f0e8;
+  --sand-mid:   #ede4d4;
+
+  /* Text */
+  --ink:     #030037;
+  --ink-mid: #3a3870;
+  --ink-sub: #6a6890;
+  --bdr:     rgba(3,0,55,0.1);
+  --bdr-s:   rgba(3,0,55,0.06);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--sand-light);color:var(--ink);font-size:15px;line-height:1.65}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--sand-mid)}
+::-webkit-scrollbar-thumb{background:var(--persian);border-radius:3px}
+
+/* ── CURSOR ── */
+#cdot,#cring{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:left .05s,top .05s}
+#cdot{width:7px;height:7px;background:var(--azure);border-radius:50%}
+#cring{width:34px;height:34px;border:2px solid rgba(0,132,255,.35);border-radius:50%;z-index:9998;transition:width .18s,height .18s,border-color .18s,left .14s,top .14s}
+body:has(a:hover) #cring,body:has(button:hover) #cring{width:50px;height:50px;border-color:var(--azure)}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 52px;height:66px;
+  border-bottom:2px solid var(--persian);
+  box-shadow:0 4px 24px rgba(3,0,55,0.4);
+}
+.nlogo{display:flex;align-items:center;gap:12px}
+.nbox{
+  width:38px;height:38px;background:var(--azure);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;
+  box-shadow:0 2px 10px rgba(0,132,255,.5);
+}
+.ntxt{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--white);letter-spacing:.3px}
+.ntxt span{color:var(--sand)}
+.nlinks{display:flex;gap:2px}
+.nlinks a{
+  color:rgba(255,255,255,.55);text-decoration:none;
+  font-size:13px;font-weight:500;padding:8px 16px;border-radius:6px;transition:all .2s;
+}
+.nlinks a:hover{color:var(--white);background:rgba(0,132,255,.2)}
+.nlinks a.active{color:var(--white);background:rgba(21,58,199,.4)}
+.nyear{
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  color:var(--sand);letter-spacing:2.5px;
+  background:rgba(222,207,185,.12);
+  border:1px solid rgba(222,207,185,.3);
+  padding:5px 14px;border-radius:20px;
+}
+
+/* ── HERO ── */
+.hero{
+  margin-top:66px;
+  background:var(--navy);
+  padding:96px 52px 84px;
+  position:relative;overflow:hidden;min-height:520px;
+}
+.hg1{
+  position:absolute;top:-120px;right:-80px;
+  width:620px;height:620px;
+  background:radial-gradient(circle,rgba(21,58,199,.35) 0%,transparent 65%);
+  border-radius:50%;
+}
+.hg2{
+  position:absolute;bottom:-100px;left:30%;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(0,132,255,.15) 0%,transparent 65%);
+  border-radius:50%;
+}
+.hg3{
+  position:absolute;top:60px;left:-60px;
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(222,207,185,.08) 0%,transparent 70%);
+  border-radius:50%;
+}
+/* Animated grid lines */
+.hgrid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(21,58,199,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(21,58,199,.08) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.hline{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--persian),var(--azure),transparent)}
+.hi{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+
+.htag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,132,255,.15);
+  border:1px solid rgba(0,132,255,.35);
+  padding:5px 14px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:2.5px;
+  color:var(--azure);text-transform:uppercase;margin-bottom:26px;
+}
+.htag::before{content:'●';font-size:7px;animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(36px,5.5vw,70px);
+  font-weight:800;color:var(--white);
+  line-height:1.05;letter-spacing:-2px;margin-bottom:22px;
+}
+h1 .blue{color:var(--azure)}
+h1 .sand{color:var(--sand)}
+
+.hdesc{font-size:16px;color:rgba(255,255,255,.55);max-width:510px;line-height:1.72;margin-bottom:56px}
+
+.hkpis{display:flex;gap:0;flex-wrap:wrap}
+.hk{
+  padding:20px 40px 20px 0;
+  border-right:1px solid rgba(255,255,255,.1);
+  margin-right:40px;
+  animation:fup .65s ease both;
+}
+.hk:last-child{border-right:none;margin-right:0}
+.hk:nth-child(1){animation-delay:.1s}
+.hk:nth-child(2){animation-delay:.2s}
+.hk:nth-child(3){animation-delay:.3s}
+.hk:nth-child(4){animation-delay:.4s}
+@keyframes fup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+.hkn{
+  font-family:'Syne',sans-serif;
+  font-size:42px;font-weight:800;color:var(--white);
+  line-height:1;letter-spacing:-1.5px;
+}
+.hkn .u{font-size:20px;color:var(--azure)}
+.hkl{font-size:12px;color:rgba(255,255,255,.45);margin-top:5px}
+
+/* ── LAYOUT ── */
+.pg{max-width:1200px;margin:0 auto;padding:0 52px}
+.sec{padding:72px 0}
+.sec-white{background:var(--white)}
+.sec-sand{background:var(--sand-light)}
+.sec-navy{background:var(--navy)}
+
+/* ── SECTION HEADER ── */
+.sl{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sn{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--persian);
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  color:var(--white);display:flex;align-items:center;justify-content:center;
+}
+.st{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--persian)}
+h2{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--ink);letter-spacing:-.8px;margin-bottom:8px}
+.sec-navy h2{color:var(--white)}
+.sec-navy .st{color:var(--azure)}
+.ss{font-size:15px;color:var(--ink-sub);margin-bottom:36px;max-width:560px}
+.sdiv{height:3px;width:56px;background:linear-gradient(to right,var(--persian),var(--azure));border-radius:2px;margin-bottom:40px}
+
+/* ── KPI CARDS ── */
+.kr4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:22px}
+.kc{
+  background:var(--white);border:1px solid var(--bdr);border-radius:18px;
+  padding:26px 24px 20px;position:relative;overflow:hidden;
+  transition:transform .25s,box-shadow .25s;
+  box-shadow:0 2px 12px rgba(3,0,55,.06);
+}
+.kc:hover{transform:translateY(-5px);box-shadow:0 14px 36px rgba(3,0,55,.12)}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kc.kp::before{background:var(--persian)}
+.kc.kb::before{background:var(--azure)}
+.kc.ks::before{background:linear-gradient(to right,var(--persian),var(--azure))}
+.kc.kn::before{background:var(--sand-deep)}
+.kl{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey);margin-bottom:9px}
+.kv{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1;letter-spacing:-2px;margin-bottom:5px}
+.kv.vp{color:var(--persian)}
+.kv.vb{color:var(--azure)}
+.kv.vn{color:var(--navy)}
+.kv.vg{color:#2a9a5a}
+.ksub{font-size:12.5px;color:var(--grey);line-height:1.4}
+
+/* ── CHART CARDS ── */
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.cc{
+  background:var(--white);border:1px solid var(--bdr);border-radius:18px;
+  padding:28px 28px 22px;
+  box-shadow:0 2px 10px rgba(3,0,55,.05);
+  transition:box-shadow .2s,transform .2s;
+}
+.cc:hover{box-shadow:0 8px 28px rgba(3,0,55,.09);transform:translateY(-2px)}
+.cl{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--grey);margin-bottom:3px}
+.ct{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:20px}
+.cw{position:relative;height:260px}
+.cwm{position:relative;height:300px}
+.cwl{position:relative;height:340px}
+
+/* ── PROGRESS BARS ── */
+.pr{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.plb{font-size:13px;color:var(--ink-mid);width:165px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt{flex:1;height:10px;background:var(--sand-mid);border-radius:5px;overflow:hidden}
+.pf{height:100%;border-radius:5px;background:linear-gradient(to right,var(--persian),var(--azure));transition:width 1.5s cubic-bezier(.22,1,.36,1);width:0}
+.pf.ok{background:linear-gradient(to right,#2a9a5a,#4dc47a)}
+.pf.warn{background:linear-gradient(to right,#c07020,#e09030)}
+.pv{font-size:13px;font-weight:600;color:var(--ink);width:54px;text-align:right}
+
+/* ── TEAM CARDS ── */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tc{
+  background:var(--white);border:1px solid var(--bdr);border-radius:18px;
+  padding:22px;cursor:pointer;
+  transition:all .25s;
+  box-shadow:0 2px 8px rgba(3,0,55,.05);
+  position:relative;overflow:hidden;
+}
+.tc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--persian),var(--azure));
+  transform:scaleX(0);transform-origin:left;transition:transform .3s;
+}
+.tc:hover{transform:translateY(-5px);box-shadow:0 14px 36px rgba(3,0,55,.11)}
+.tc:hover::before{transform:scaleX(1)}
+.ti{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,var(--persian-s),var(--azure-s));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:13px;
+}
+.tn{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.tv{
+  font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+  color:var(--persian);line-height:1;letter-spacing:-1px;margin-bottom:3px;
+}
+.tp{font-size:12px;color:var(--grey);margin-bottom:12px}
+.tts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ── TAGS ── */
+.tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.tgp{background:var(--persian-s);color:var(--persian)}
+.tgb{background:var(--azure-s);color:#0060c0}
+.tgg{background:#eaf7ef;color:#1a7a3a}
+.tgw{background:var(--sand-mid);color:var(--navy)}
+.tgr{background:#fde8e8;color:#c02020}
+.tgam{background:#fff5d6;color:#8a6000}
+
+/* ── MONTH TABLE ── */
+.mt{width:100%;border-collapse:collapse;font-size:13.5px}
+.mt th{
+  text-align:left;padding:11px 15px;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--grey);border-bottom:2px solid var(--bdr);
+}
+.mt td{padding:12px 15px;border-bottom:1px solid var(--bdr-s)}
+.mt tr:last-child td{border-bottom:none}
+.mt tr{transition:background .15s}
+.mt tr:hover td{background:var(--sand-light)}
+.vp{display:inline-block;padding:3px 11px;border-radius:20px;font-weight:700;font-size:12px}
+.vh{background:var(--persian-s);color:var(--persian)}
+.vm{background:var(--azure-s);color:#0060c0}
+.vnm{background:var(--sand-mid);color:var(--navy)}
+.vl{background:#eaf7ef;color:#1a7a3a}
+.spark{display:flex;gap:3px;align-items:flex-end;height:28px}
+.sb{width:9px;border-radius:2px 2px 0 0}
+
+/* ── PROJECT FILTER & CARDS ── */
+.fbrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.fb{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:500;padding:8px 20px;border-radius:22px;
+  border:1.5px solid var(--bdr);background:var(--white);color:var(--ink-sub);
+  cursor:pointer;transition:all .2s;
+}
+.fb:hover{border-color:var(--persian);color:var(--persian)}
+.fb.act{background:var(--persian);color:var(--white);border-color:var(--persian);box-shadow:0 4px 14px rgba(21,58,199,.3)}
+
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pcard{
+  background:var(--white);border-radius:18px;border:1px solid var(--bdr);
+  padding:20px 20px 16px;
+  border-top:3px solid var(--persian);
+  transition:all .25s;
+  box-shadow:0 2px 8px rgba(3,0,55,.05);
+  display:flex;flex-direction:column;
+}
+.pcard.op{border-top-color:var(--azure)}
+.pcard.pc{border-top-color:#2a9a5a}
+.pcard.fi{border-top-color:var(--sand-deep)}
+.pcard.pr{border-top-color:var(--grey)}
+.pcard:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(3,0,55,.1)}
+
+.pseg{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:7px}
+.pname{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:9px;line-height:1.35;flex:1}
+.pdesc{font-size:12.5px;color:var(--ink-sub);line-height:1.55;margin-bottom:13px;flex:2}
+.pmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:11px;border-top:1px solid var(--bdr-s)}
+.pown{font-size:12px;color:var(--grey);margin-left:auto}
+
+/* ── PILLAR CARDS ── */
+.plgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.plcard{
+  background:var(--white);border-radius:18px;border:1px solid var(--bdr);
+  padding:30px 28px;display:flex;gap:18px;
+  box-shadow:0 2px 8px rgba(3,0,55,.05);transition:all .25s;
+}
+.plcard:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(3,0,55,.1)}
+.plico{width:54px;height:54px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px}
+.plico.p{background:linear-gradient(135deg,var(--persian-s),#c5d0f8)}
+.plico.b{background:linear-gradient(135deg,var(--azure-s),#b0d8ff)}
+.plico.g{background:linear-gradient(135deg,#eaf7ef,#b8e8c8)}
+.plico.s{background:linear-gradient(135deg,var(--sand-mid),var(--sand))}
+.pltit{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:9px}
+.pltxt{font-size:13.5px;color:var(--ink-sub);line-height:1.65}
+
+/* ── INSIGHT BOXES ── */
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ibox{
+  border-radius:18px;padding:30px 28px;
+  position:relative;overflow:hidden;
+  transition:transform .25s;
+}
+.ibox:hover{transform:translateY(-4px)}
+.ibox::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);
+  border-radius:50%;
+}
+.ibox::after{
+  content:'';position:absolute;bottom:-20px;left:-20px;
+  width:100px;height:100px;
+  background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);
+  border-radius:50%;
+}
+.i1{background:linear-gradient(135deg,var(--navy),var(--navy-mid))}
+.i2{background:linear-gradient(135deg,var(--persian),var(--navy-light))}
+.i3{background:linear-gradient(135deg,var(--azure),var(--persian))}
+.i4{background:linear-gradient(135deg,#2a5a1a,#1a3a0a)}
+.ila{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px}
+.itit{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);line-height:1.25;margin-bottom:10px}
+.ibody{font-size:13.5px;color:rgba(255,255,255,.7);line-height:1.65}
+
+/* ── SAND BAND (pillar section bg) ── */
+.sec-sand-deep{background:var(--sand-mid)}
+
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .65s ease,transform .65s ease}
+.rv.up{opacity:1;transform:none}
+.rv:nth-child(2){transition-delay:.08s}
+.rv:nth-child(3){transition-delay:.16s}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--navy);padding:52px 52px;text-align:center;
+  border-top:3px solid var(--persian);
+}
+.flogo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--white);letter-spacing:-.5px;margin-bottom:10px}
+.flogo span{color:var(--azure)}
+.fline{font-size:13px;color:rgba(255,255,255,.38);margin-bottom:3px}
+.fsand{display:inline-block;margin-top:16px;font-size:11px;color:var(--sand);letter-spacing:1px;opacity:.6}
+
+@media(max-width:960px){
+  nav{padding:0 20px}.pg{padding:0 20px}
+  .kr4,.c2,.tgrid,.pgrid,.plgrid,.igrid{grid-template-columns:1fr}
+  h1{letter-spacing:-1px}
+}
+</style>
+</head>
+<body>
+
+<div id="cdot"></div>
+<div id="cring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nlogo">
+    <div class="nbox">ISS</div>
+    <div class="ntxt">IT <span>Jaarrapportage</span></div>
+  </div>
+  <div class="nlinks">
+    <a href="#kpis">Kerncijfers</a>
+    <a href="#tickets">Tickets</a>
+    <a href="#teams">Teams</a>
+    <a href="#projects">Projecten</a>
+    <a href="#insights">Inzichten</a>
+  </div>
+  <div class="nyear">2025</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hgrid"></div>
+  <div class="hg1"></div><div class="hg2"></div><div class="hg3"></div>
+  <div class="hline"></div>
+  <div class="hi">
+    <div class="htag">IT Afdeling · Jaarrapportage</div>
+    <h1>Een jaar van<br><span class="blue">bouwen</span> aan<br><span class="sand">fundament</span></h1>
+    <p class="hdesc">In 2025 heeft het IT-team van ISS 7.285 tickets afgehandeld, 40 projecten opgeleverd en brede IT-initiatieven geleverd — van infrastructuur tot AI.</p>
+    <div class="hkpis">
+      <div class="hk"><div class="hkn"><span class="cu" data-v="7285">0</span></div><div class="hkl">Tickets afgehandeld</div></div>
+      <div class="hk"><div class="hkn"><span class="cu" data-v="40">0</span></div><div class="hkl">Projecten afgerond</div></div>
+      <div class="hk"><div class="hkn"><span class="cu" data-v="15">0</span></div><div class="hkl">Medewerkers</div></div>
+      <div class="hk"><div class="hkn"><span class="cu" data-v="100">0</span><span class="u">%</span></div><div class="hkl">Resolutie — 0 open tickets</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── KERNCIJFERS ── -->
+<div id="kpis" class="sec sec-white">
+<div class="pg">
+  <div class="rv">
+    <div class="sl"><div class="sn">01</div><div class="st">Kerncijfers</div></div>
+    <h2>Het jaar in één oogopslag</h2>
+    <div class="sdiv"></div>
+  </div>
+  <div class="kr4 rv">
+    <div class="kc kp"><div class="kl">Totaal tickets</div><div class="kv vp">7.285</div><div class="ksub">Alle 7.285 tickets zijn gesloten — 0 openstaand</div></div>
+    <div class="kc kb"><div class="kl">Resolutie rate</div><div class="kv vg">100%</div><div class="ksub">Geen enkel ticket blijft onopgelost</div></div>
+    <div class="kc kb"><div class="kl">Mediaanoplossing</div><div class="kv vb">6,6u</div><div class="ksub">Mediaan doorlooptijd per ticket</div></div>
+    <div class="kc ks"><div class="kl">SLA-naleving</div><div class="kv vn">71,7%</div><div class="ksub">Van gemeten tickets binnen SLA opgelost</div></div>
+  </div>
+  <div class="kr4 rv">
+    <div class="kc kn"><div class="kl">Projecten afgerond</div><div class="kv vp">40</div><div class="ksub">Alle projecten status: Done ✓</div></div>
+    <div class="kc kn"><div class="kl">Beschikbare FTE</div><div class="kv vb">14,6</div><div class="ksub">13 fulltime + 2 × 0,8 FTE</div></div>
+    <div class="kc kn"><div class="kl">Tickets per FTE</div><div class="kv vn">515</div><div class="ksub">Gemiddeld per medewerker</div></div>
+    <div class="kc kn"><div class="kl">Drukste maand</div><div class="kv vp">Sep</div><div class="ksub">729 tickets — Q4 onboarding piek</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── TICKETS ── -->
+<div id="tickets" class="sec sec-sand">
+<div class="pg">
+  <div class="rv">
+    <div class="sl"><div class="sn">02</div><div class="st">Ticketanalyse</div></div>
+    <h2>Volume, snelheid & SLA</h2>
+    <div class="sdiv"></div>
+  </div>
+
+  <div class="cc rv" style="margin-bottom:24px">
+    <div class="cl">Volume over het jaar</div>
+    <div class="ct">Tickets per maand — 2025</div>
+    <div class="cwl"><canvas id="mchart"></canvas></div>
+  </div>
+
+  <div class="c2 rv">
+    <div class="cc">
+      <div class="cl">Verdeling</div>
+      <div class="ct">Tickets per team / domein</div>
+      <div class="cwm"><canvas id="dchart"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cl">SLA-prestatie</div>
+      <div class="ct">Within SLA vs Overschreden</div>
+      <div class="cwm"><canvas id="schart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="cc rv" style="margin-bottom:24px">
+    <div class="cl">Doorlooptijd</div>
+    <div class="ct" style="margin-bottom:22px">Gemiddelde oplossingstijd per team (uren)</div>
+    <div id="rbars"></div>
+  </div>
+
+  <div class="cc rv">
+    <div class="cl">Maandoverzicht</div>
+    <div class="ct" style="margin-bottom:18px">Ticketvolume per maand met context</div>
+    <table class="mt">
+      <thead><tr><th>Maand</th><th>Tickets</th><th>Jaartrend</th><th>Niveau</th><th>Toelichting</th></tr></thead>
+      <tbody id="mtbody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ── TEAMS ── -->
+<div id="teams" class="sec sec-white">
+<div class="pg">
+  <div class="rv">
+    <div class="sl"><div class="sn">03</div><div class="st">Teams & Domeinen</div></div>
+    <h2>Wie behandelt wat?</h2>
+    <p class="ss">Elk team heeft een eigen werkdomein. Prestaties op volume, doorlooptijd en SLA-naleving per team.</p>
+    <div class="sdiv"></div>
+  </div>
+  <div class="tgrid rv" id="tgrid"></div>
+</div>
+</div>
+
+<!-- ── PROJECTS ── -->
+<div id="projects" class="sec sec-sand">
+<div class="pg">
+  <div class="rv">
+    <div class="sl"><div class="sn">04</div><div class="st">Projecten 2025</div></div>
+    <h2>40 projecten — allemaal afgerond</h2>
+    <p class="ss">Van infrastructuurmigraties tot AI-implementaties. Elk project versterkt het IT-landschap van ISS.</p>
+    <div class="sdiv"></div>
+  </div>
+
+  <div class="cc rv" style="margin-bottom:26px">
+    <div class="cl">Verdeling projecten</div>
+    <div class="ct">Projecten per segment</div>
+    <div class="cw"><canvas id="pschart"></canvas></div>
+  </div>
+
+  <div class="fbrow rv" id="fbrow"></div>
+  <div class="pgrid rv" id="pgrid"></div>
+</div>
+</div>
+
+<!-- ── PILLARS ── -->
+<div class="sec sec-navy">
+<div class="pg">
+  <div class="rv">
+    <div class="sl"><div class="sn" style="background:var(--azure)">05</div><div class="st" style="color:var(--azure)">Bijdrage aan het IT-landschap</div></div>
+    <h2 style="color:var(--white)">Vier pijlers van groei</h2>
+    <p class="ss" style="color:rgba(255,255,255,.55)">De projecten dragen direct bij aan vier strategische pijlers die ISS sterker, veiliger en wendbaarder maken.</p>
+    <div class="sdiv"></div>
+  </div>
+  <div class="plgrid rv">
+    <div class="plcard"><div class="plico p">🏗️</div><div><div class="pltit">Stabiele infrastructuur & connectiviteit</div><div class="pltxt">ADSL→VDSL, Windows 11-uitrol, serverupdates en MER-optimalisatie leggen een solide basis. Stabiel netwerk en moderne systemen zijn de randvoorwaarde voor digitale groei — minder downtime, betere responsetijden.</div></div></div>
+    <div class="plcard"><div class="plico b">🔐</div><div><div class="pltit">Veiligheid & compliance</div><div class="pltxt">ISO-audit, Paxton Security, IAM/AFAS UPN-sync en auditrequirements borgen dat ISS aantoonbaar voldoet aan beveiligingsnormen. Dit versterkt het vertrouwen van klanten en stakeholders.</div></div></div>
+    <div class="plcard"><div class="plico g">⚡</div><div><div class="pltit">Operationele effectiviteit</div><div class="pltxt">Smartsheets, Alumio, WFM-migratie en de onboarding van 6+ klanten verhogen de wendbaarheid. Data stroomt sneller, processen zijn geautomatiseerd — meer bereiken met minder handwerk.</div></div></div>
+    <div class="plcard"><div class="plico s">🤖</div><div><div class="pltit">Innovatie & datagerichte organisatie</div><div class="pltxt">AI for Recruitment, CAO Chatbot, IT Asset Management en het Udemy-leerplan positioneren ISS als lerende, datagedreven organisatie — een schaalbaar concurrentievoordeel.</div></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── INSIGHTS ── -->
+<div id="insights" class="sec sec-white">
+<div class="pg">
+  <div class="rv">
+    <div class="sl"><div class="sn">06</div><div class="st">Organisatie-inzichten</div></div>
+    <h2>Wat het ticketvolume vertelt</h2>
+    <p class="ss">7.285 tickets zijn niet alleen een getal — ze vertellen een verhaal over de organisatie en de kansen voor 2026.</p>
+    <div class="sdiv"></div>
+  </div>
+  <div class="igrid rv">
+    <div class="ibox i1">
+      <div class="ila">Inzicht 01</div>
+      <div class="itit">IT Support is het kloppend hart van de organisatie</div>
+      <div class="ibody">Met 3.240 tickets (44%) draagt IT Support veruit de zwaarste last. Dit weerspiegelt de brede afhankelijkheid van IT. Tegelijk een signaal: selfservice of een kennisbank kan de druk structureel verlichten.</div>
+    </div>
+    <div class="ibox i2">
+      <div class="ila">Inzicht 02</div>
+      <div class="itit">100% resolutie is een uitzonderlijke prestatie</div>
+      <div class="ibody">Geen enkel ticket staat open. In combinatie met een mediaan van 6,6 uur toont dit een volwassen serviceorganisatie die niet alleen reageert, maar ook consequent afrondt.</div>
+    </div>
+    <div class="ibox i3">
+      <div class="ila">Inzicht 03</div>
+      <div class="itit">Seizoenspatroon biedt kansen voor planning 2026</div>
+      <div class="ibody">September piekte met 729 tickets door onboardings en Q4-aanloop. Dit voorspelbare patroon maakt gerichte capaciteitsplanning mogelijk: extra ondersteuning in aug/sep voorkomt kwaliteitsverlies.</div>
+    </div>
+    <div class="ibox i4">
+      <div class="ila">Inzicht 04</div>
+      <div class="itit">SLA-verbetering: concrete kans voor 2026</div>
+      <div class="ibody">28,3% van gemeten tickets overschreed de SLA. Fin &amp; Inkoop (gem. 366u!) en P&amp;C (148u) vragen herziening van prioriteringsregels. Gericht ingrijpen verhoogt de algehele score significant.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo">ISS <span>IT</span></div>
+  <div class="fline">Jaarrapportage 2025 · 15 medewerkers · 40 projecten · 7.285 tickets · Één team</div>
+  <div class="fline" style="margin-top:6px;font-size:11px">Opgesteld voor de CEO · 100% resolutie · Alle tickets gesloten</div>
+  <div class="fsand">ISS · Connecting People and Places</div>
+</footer>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────────────────────────
+const dot=document.getElementById('cdot'),ring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+const M=['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+const V=[587,529,693,637,603,605,535,565,729,666,566,570];
+const RMK=['Rustige start na feestdagen','Lichte dip in volume','Eerste piek Q1','Gestage aanloop Q2','Stabiel volume','Afdeling IT piek (onboardings)','Rustige zomerperiode','Zomer loopt door','🔺 Jaarpiek — onboardings & Q4-start','Sterk Q4-volume','Stabiel eindejaar','Kalm december'];
+
+const TEAMS=[
+  {n:'IT Support',  i:'💻',c:3240,p:44.5,ok:773, vio:236,avg:21.7},
+  {n:'Coupa',       i:'🛒',c:1143,p:15.7,ok:710, vio:209,avg:26.8},
+  {n:'POS',         i:'🖥️',c:961, p:13.2,ok:602, vio:212,avg:33.6},
+  {n:'Rostar',      i:'📋',c:621, p:8.5, ok:128, vio:172,avg:42.1},
+  {n:'ICT middelen',i:'🖨️',c:552, p:7.6, ok:209, vio:248,avg:70.8},
+  {n:'FMS@ISS',     i:'🏢',c:551, p:7.6, ok:471, vio:26, avg:17.8},
+  {n:'Afdeling IT', i:'⚙️',c:114, p:1.6, ok:16,  vio:6,  avg:71.7},
+  {n:'P&C',         i:'👥',c:78,  p:1.1, ok:20,  vio:42, avg:148.0},
+  {n:'Fin & Inkoop',i:'💰',c:23,  p:0.3, ok:11,  vio:6,  avg:365.6},
+];
+
+const PROJ=[
+  {s:'IT',n:'Windows 10→11 uitrol',         o:'Roy',     nv:'Operationeel',d:'Volledige werkplekmigratie naar Windows 11. Verhoogt beveiliging, sluit aan op moderne softwarevereisten en vermindert technische schuld.'},
+  {s:'IT',n:'ADSL → VDSL',                  o:'Roy',     nv:'Operationeel',d:'Upgrade van alle locaties naar VDSL. Snellere, stabielere connectiviteit als randvoorwaarde voor cloud- en SaaS-diensten.'},
+  {s:'IT',n:'Implementatie Alumio',          o:'Gianni',  nv:'Operationeel',d:'Cloud-native integratieplatform koppelt AFAS, Coupa en ERP. Minder handmatige datafeed, hogere data-integriteit organisatiebreed.'},
+  {s:'IT',n:'IT Asset Management',           o:'Roy',     nv:'Tactisch',   d:'Centraal beheer van hardware en software-assets. Zichtbaarheid op licentiegebruik, vervangingscyclus en compliance.'},
+  {s:'IT',n:'Ticketmaster integratie',       o:'Roy',     nv:'Operationeel',d:'Koppeling ticketingsysteem voor automatische doorrouting en rapportage over alle afdelingen.'},
+  {s:'IT',n:'Usermanagement alle applicaties',o:'Roy',    nv:'Operationeel',d:'Centraal usermanagement voor alle applicaties. Kleiner risico op ongewenste rechten, snellere on/offboarding.'},
+  {s:'IT',n:'IAM – AFAS UPN Sync',           o:'Gianni',  nv:'Operationeel',d:'Automatische synchronisatie vanuit AFAS naar Azure AD. Elimineert handmatig accountbeheer volledig.'},
+  {s:'IT',n:'ISO-audit',                     o:'Joey',    nv:'Tactisch',   d:'Voorbereiding en uitvoering ISO-audit. Compliance vergroot klantvertrouwen en versterkt contractposities.'},
+  {s:'IT',n:'Optimalisatie MER-ruimte',      o:'Roy',     nv:'Operationeel',d:'Herinrichting serverruimte: betere koeling en kabelmanagement. Vermindert downtime-risico\'s structureel.'},
+  {s:'IT',n:'Onboarding Smartsheets',        o:'Gianni',  nv:'Operationeel',d:'Smartsheets uitgerold voor projectbeheer. Vervangt losse spreadsheets, verhoogt transparantie.'},
+  {s:'IT',n:'Server management & updates',   o:'Roy',     nv:'Operationeel',d:'Gestructureerd patchmanagement en onderhoud. Minimaliseert kwetsbaarheden en borgt stabiele omgeving.'},
+  {s:'IT',n:'IT user onboarding',            o:'Roy',     nv:'Operationeel',d:'Gestandaardiseerd onboardingproces. Kortere time-to-productive en hogere kwaliteit dag-één-ervaring.'},
+  {s:'IT',n:'Scrumboard & agile werken',     o:'App-team',nv:'Operationeel',d:'Agile werkwijze ingericht voor het applicatieteam. Verhoogt voorspelbaarheid en eigenaarschap.'},
+  {s:'IT',n:'Fresh: dynamische formulieren', o:'App-team',nv:'Operationeel',d:'Fresh Service geoptimaliseerd met dynamische formulieren voor betere datakwaliteit bij ticketaanmaak.'},
+  {s:'IT',n:'Aansluiting gebruikersgroepen', o:'App-team',nv:'Operationeel',d:'Gebruikersgroepen structureel aangesloten bij applicatiebeheer voor betere kanaalstuur.'},
+  {s:'IT',n:'Overdracht FIT/ICE → SD',       o:'App-team',nv:'Operationeel',d:'Kennisoverdracht en transitie naar servicedesk. Verhoogt schaalbaarheid, verlaagt individuele afhankelijkheden.'},
+  {s:'IT',n:'Udemy leerplan IT',             o:'App-team',nv:'Operationeel',d:'Gerichte leerpaden op Udemy Business voor IT-medewerkers. Investering in kennis en werkgeversaantrekkelijkheid.'},
+  {s:'IT',n:'Audit requirements standaardiseren',o:'App-team',nv:'Operationeel',d:'Uniforme auditcriteria voor alle applicaties. Minder revisiewerk en efficiëntere externe audits.'},
+  {s:'IT',n:'Smartsheets Technical Services',o:'Joey',    nv:'Tactisch',   d:'Smartsheets uitgerold voor Technical Services. Verbetert projectzichtbaarheid en teamsamenwerking.'},
+  {s:'OP',n:'Paxton Security',               o:'Roy',     nv:'Operationeel',d:'Toegangscontrolesysteem geïmplementeerd. Verhoogt fysieke beveiliging en beperkt ongeautoriseerde toegang.'},
+  {s:'OP',n:'Clickshare',                    o:'Roy',     nv:'Operationeel',d:'Draadloze presentatieoplossing in vergaderruimtes. Versnelt meetings en ondersteunt hybride werken.'},
+  {s:'OP',n:'Humly roomdisplays',            o:'Roy',     nv:'Operationeel',d:'Real-time bezetting zichtbaar via displays. Vereenvoudigt reserveringen en vermindert no-shows.'},
+  {s:'OP',n:'Digilocks',                     o:'Roy',     nv:'Operationeel',d:'Slimme kluisoplossing voor lockers. Verbetert personeelservaring en beveiliging op de werkvloer.'},
+  {s:'OP',n:'Narrow Casting',                o:'Gianni',  nv:'Operationeel',d:'Digitale schermen voor interne communicatie. Verhoogt bereik van bedrijfsberichten op de werkvloer.'},
+  {s:'OP',n:'WFM Server migratie',           o:'App-team',nv:'Operationeel',d:'WFM-server gemigreerd. Borgt continuïteit van roostering en planningsprocessen.'},
+  {s:'OP',n:'Draytek routers',               o:'Gianni',  nv:'Operationeel',d:'Vervanging van routers op locaties. Stabielere en beter beheerbare netwerkverbindingen.'},
+  {s:'OP',n:'Toegangscontrole / visitor mgmt',o:'Gianni', nv:'Operationeel',d:'Digitaal bezoekersregistratiesysteem ingevoerd. Vergroot veiligheid en professionele uitstraling.'},
+  {s:'OP',n:'Conveini de Meern',             o:'App-team',nv:'Operationeel',d:'IT-onboarding Conveini op locatie De Meern. Structurele aansluiting op ISS-systemen.'},
+  {s:'OP',n:'Transitieplan alle applicaties',o:'Roy',     nv:'Operationeel',d:'Documentatie en uitvoering transitieplan. Maakt overdrachten beheersbaar en herhaalbaar.'},
+  {s:'OP',n:'Onboarding Keune',              o:'App-team',nv:'Operationeel',d:'Volledige IT-onboarding van Keune als nieuwe klant op het ISS-platform.'},
+  {s:'OP',n:'Onboarding ICC',                o:'App-team',nv:'Operationeel',d:'ICC aangesloten op applicaties, toegangsrechten en servicedesk.'},
+  {s:'OP',n:'Onboarding Thermo Fischer',     o:'App-team',nv:'Operationeel',d:'Thermo Fischer succesvol geïntegreerd in het ISS IT-ecosysteem.'},
+  {s:'OP',n:'Onboarding Velux',              o:'App-team',nv:'Operationeel',d:'Velux-locaties opgenomen in het ISS IT-landschap.'},
+  {s:'OP',n:'Onboarding Arcadis',            o:'App-team',nv:'Operationeel',d:'Arcadis-onboarding afgerond inclusief systeemtoegang en gebruikersbeheer.'},
+  {s:'OP',n:'Onboarding Altura',             o:'Gianni',  nv:'Operationeel',d:'Altura als commerciële klant aangehaakt op het ISS-platform.'},
+  {s:'PC',n:'AI for Recruitment',            o:'Joey',    nv:'Tactisch',   d:'AI ingezet voor wervingsondersteuning. Versnelt screening en verbetert kandidaatervaring significant.'},
+  {s:'PC',n:'CAO Chatbot (AI)',              o:'App-team',nv:'Tactisch',   d:'AI-chatbot voor CAO-vragen. Verlicht druk op HR en geeft medewerkers 24/7 toegang tot antwoorden.'},
+  {s:'PC',n:'Bedrijfsmiddelen (assets + keycards)',o:'App-team',nv:'Tactisch',d:'Digitaal beheer van leengebruik, assets en toegangspassen. Meer overzicht en verantwoording.'},
+  {s:'FIN',n:'Mekong',                       o:'Gianni',  nv:'Operationeel',d:'Customer experience optimalisatie binnen Finance. Verbetert klantgerichte processen en datazichtbaarheid.'},
+  {s:'PROC',n:'Hired@ISS',                   o:'Gianni',  nv:'Tactisch',   d:'Intern mobiliteitsplatform live. Verhoogt interne doorstroom en vermindert externe wervingskosten.'},
+];
+
+const SN={IT:'IT',OP:'Operations',PC:'P&C',FIN:'Finance',PROC:'Procurement'};
+const SC={IT:'',OP:'op',PC:'pc',FIN:'fi',PROC:'pr'};
+const SCLR={IT:'#153ac7',OP:'#0084ff',PC:'#2a9a5a',FIN:'#c8b89a',PROC:'#858585'};
+const rev2={IT:'IT',Operations:'OP','P&C':'PC',Finance:'FIN',Procurement:'PROC'};
+
+const TOOLTIP={
+  backgroundColor:'rgba(3,0,55,.93)',
+  titleFont:{family:'Syne',size:13},
+  bodyFont:{family:'DM Sans',size:12},
+  padding:12,cornerRadius:10
+};
+
+// ── MONTHLY CHART ────────────────────────────────────────────────────────────
+const mxV=Math.max(...V);
+new Chart(document.getElementById('mchart'),{
+  type:'bar',
+  data:{labels:M,datasets:[{
+    label:'Tickets',data:V,
+    backgroundColor:V.map(v=>v===mxV?'#153ac7':v>=650?'#0084ff':'rgba(21,58,199,0.45)'),
+    borderRadius:8,borderSkipped:false
+  }]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TOOLTIP,callbacks:{label:c=>`${c.raw} tickets`}}},
+    scales:{
+      y:{grid:{color:'rgba(3,0,55,.06)'},ticks:{font:{family:'DM Sans',size:12},color:'#6a6890'}},
+      x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:12},color:'#6a6890'}}
+    }
+  }
+});
+
+// ── DOMAIN CHART ─────────────────────────────────────────────────────────────
+new Chart(document.getElementById('dchart'),{
+  type:'doughnut',
+  data:{
+    labels:TEAMS.map(t=>t.n),
+    datasets:[{
+      data:TEAMS.map(t=>t.c),
+      backgroundColor:['#030037','#153ac7','#0084ff','#2a5ab0','#4a7ad0','#DECFB9','#858585','#c8b89a','#1a3a8a'],
+      borderWidth:2,borderColor:'#f5f0e8'
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'right',labels:{font:{family:'DM Sans',size:11},boxWidth:12,padding:9,color:'#3a3870'}},
+      tooltip:{...TOOLTIP,callbacks:{label:c=>`${c.label}: ${c.raw} (${TEAMS[c.dataIndex].p}%)`}}
+    }
+  }
+});
+
+// ── SLA CHART ─────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('schart'),{
+  type:'doughnut',
+  data:{
+    labels:['Within SLA','Overschreden','Niet gemeten'],
+    datasets:[{
+      data:[2940,1157,3188],
+      backgroundColor:['#153ac7','#030037','#DECFB9'],
+      borderWidth:2,borderColor:'#f5f0e8'
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'right',labels:{font:{family:'DM Sans',size:11},boxWidth:12,padding:9,color:'#3a3870'}},
+      tooltip:{...TOOLTIP,callbacks:{label:c=>`${c.label}: ${c.raw} tickets`}}
+    }
+  }
+});
+
+// ── PROJECT SEGMENT CHART ────────────────────────────────────────────────────
+const SC2={};
+PROJ.forEach(p=>SC2[SN[p.s]]=(SC2[SN[p.s]]||0)+1);
+new Chart(document.getElementById('pschart'),{
+  type:'bar',
+  data:{
+    labels:Object.keys(SC2),
+    datasets:[{
+      label:'Projecten',
+      data:Object.values(SC2),
+      backgroundColor:Object.keys(SC2).map(s=>SCLR[rev2[s]]||'#858585'),
+      borderRadius:8,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{...TOOLTIP,callbacks:{label:c=>`${c.raw} projecten`}}},
+    scales:{
+      x:{grid:{color:'rgba(3,0,55,.06)'},ticks:{font:{family:'DM Sans'},color:'#6a6890'}},
+      y:{grid:{display:false},ticks:{font:{family:'DM Sans'},color:'#3a3870'}}
+    }
+  }
+});
+
+// ── RESOLUTION BARS ──────────────────────────────────────────────────────────
+const rb=document.getElementById('rbars');
+const mxH=365.6;
+[...TEAMS].sort((a,b)=>b.avg-a.avg).forEach(t=>{
+  const pct=(t.avg/mxH*100).toFixed(1);
+  const cl=t.avg>100?'':(t.avg>48?'warn':'ok');
+  rb.innerHTML+=`<div class="pr">
+    <div class="plb">${t.i} ${t.n}</div>
+    <div class="pt"><div class="pf ${cl}" data-w="${pct}" style="width:0%"></div></div>
+    <div class="pv">${t.avg}u</div>
+  </div>`;
+});
+
+// ── MONTH TABLE ───────────────────────────────────────────────────────────────
+const tb=document.getElementById('mtbody');
+V.forEach((v,i)=>{
+  const cl=v>=700?'vh':v>=650?'vm':v<=540?'vl':'vnm';
+  const lbl=v>=700?'Hoog':v>=650?'Verhoogd':v<=540?'Laag':'Normaal';
+  const spark=M.map((_,j)=>`<div class="sb" style="height:${Math.round(V[j]/mxV*28)}px;background:${j===i?'var(--persian)':'var(--sand-deep)'};opacity:${j===i?1:.4};border-radius:2px 2px 0 0"></div>`).join('');
+  tb.innerHTML+=`<tr>
+    <td style="font-weight:600;font-family:'Syne',sans-serif;color:var(--ink)">${M[i]}</td>
+    <td><span class="vp ${cl}">${v}</span></td>
+    <td><div class="spark">${spark}</div></td>
+    <td><span class="vp ${cl}">${lbl}</span></td>
+    <td style="color:var(--ink-sub);font-size:13px">${RMK[i]}</td>
+  </tr>`;
+});
+
+// ── TEAM GRID ─────────────────────────────────────────────────────────────────
+const tg=document.getElementById('tgrid');
+TEAMS.forEach(t=>{
+  const tot=t.ok+t.vio,sp=tot>0?Math.round(t.ok/tot*100):null;
+  const stag=sp===null?`<span class="tag tgw">Geen SLA data</span>`:
+    sp>=80?`<span class="tag tgg">SLA ${sp}% ✓</span>`:
+    sp>=60?`<span class="tag tgam">SLA ${sp}%</span>`:
+           `<span class="tag tgr">SLA ${sp}% ⚠</span>`;
+  const atag=t.avg<=24?`<span class="tag tgg">Ø ${t.avg}u</span>`:
+    t.avg<=72?`<span class="tag tgam">Ø ${t.avg}u</span>`:
+              `<span class="tag tgr">Ø ${t.avg}u</span>`;
+  tg.innerHTML+=`<div class="tc">
+    <div class="ti">${t.i}</div>
+    <div class="tn">${t.n}</div>
+    <div class="tv">${t.c.toLocaleString('nl-NL')}</div>
+    <div class="tp">${t.p}% van het jaarvolume</div>
+    <div class="tts">${stag}${atag}</div>
+  </div>`;
+});
+
+// ── PROJECTS ──────────────────────────────────────────────────────────────────
+const segs=['Alles',...new Set(PROJ.map(p=>SN[p.s]))];
+const fr=document.getElementById('fbrow');
+segs.forEach(s=>{
+  const b=document.createElement('button');
+  b.className='fb'+(s==='Alles'?' act':'');
+  b.textContent=s;
+  b.onclick=()=>{document.querySelectorAll('.fb').forEach(x=>x.classList.remove('act'));b.classList.add('act');rp(s)};
+  fr.appendChild(b);
+});
+function rp(f){
+  const pg=document.getElementById('pgrid');
+  const list=f==='Alles'?PROJ:PROJ.filter(p=>SN[p.s]===f);
+  pg.innerHTML=list.map(p=>`
+    <div class="pcard ${SC[p.s]}">
+      <div class="pseg">${SN[p.s]}</div>
+      <div class="pname">${p.n}</div>
+      <div class="pdesc">${p.d}</div>
+      <div class="pmeta">
+        <span class="tag tgw">${p.nv}</span>
+        <span class="pown">👤 ${p.o}</span>
+      </div>
+    </div>`).join('');
+}
+rp('Alles');
+
+// ── SCROLL REVEAL + PROGRESS BARS ────────────────────────────────────────────
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('up');
+      e.target.querySelectorAll('.pf[data-w]').forEach(b=>setTimeout(()=>{b.style.width=b.dataset.w+'%'},200));
+    }
+  });
+},{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+// ── COUNT-UP ──────────────────────────────────────────────────────────────────
+function countUp(el){
+  const t=+el.dataset.v,dur=2000,s=performance.now();
+  (function step(n){
+    const p=Math.min((n-s)/dur,1),e=1-Math.pow(1-p,4);
+    el.textContent=Math.round(e*t).toLocaleString('nl-NL');
+    if(p<1)requestAnimationFrame(step);
+  })(s);
+}
+const co=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.cu').forEach(countUp);co.unobserve(e.target)}});
+},{threshold:.3});
+document.querySelectorAll('.hkpis').forEach(el=>co.observe(el));
+
+// ── ACTIVE NAV LINK ───────────────────────────────────────────────────────────
+const navLinks=document.querySelectorAll('.nlinks a');
+const secEls=document.querySelectorAll('div[id]');
+const secObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>{
+        a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id);
+      });
+    }
+  });
+},{threshold:.4});
+secEls.forEach(s=>secObs.observe(s));
+</script>
+</body>
+</html>
