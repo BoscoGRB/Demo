@@ -1,1 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Issy – Smart FM AI Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --card: #161b2e;
+    --border: #1f2a45;
+    --accent: #4f8fff;
+    --accent2: #7c5fff;
+    --green: #2dcc8e;
+    --amber: #ffb847;
+    --text: #e8edf7;
+    --muted: #5a6a8a;
+    --issy-bubble: #161f3a;
+    --user-bubble: #1a2a5e;
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    opacity: 0.5;
+  }
+
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+    position: relative; flex-shrink: 0;
+  }
+
+  .avatar-pulse {
+    position: absolute; inset: -3px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+    opacity: 0.6;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.12); opacity: 0.2; }
+  }
+
+  .header-info h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.02em; }
+
+  .header-info .status {
+    font-size: 11px; color: var(--green);
+    display: flex; align-items: center; gap: 5px; font-weight: 400;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* Sound toggle — same style as before */
+  .sound-toggle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: border-color 0.2s, color 0.2s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .sound-toggle.on { border-color: var(--accent); color: var(--accent); }
+
+  /* Demo control button — replaces Live Demo badge, same pill shape */
+  .demo-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: white;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .demo-btn:hover { opacity: 0.9; transform: scale(1.03); }
+  .demo-btn .btn-icon { font-size: 10px; }
+
+  /* ── Chat area ── */
+  .chat-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+  }
+
+  .chat-area::-webkit-scrollbar { width: 4px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .msg {
+    display: flex; gap: 10px;
+    max-width: 78%;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .msg.visible { opacity: 1; transform: translateY(0); }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .msg.issy .msg-avatar { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+  .msg.user .msg-avatar { background: var(--border); font-size: 14px; }
+
+  .bubble {
+    padding: 10px 14px; border-radius: 16px;
+    font-size: 13.5px; line-height: 1.6; position: relative;
+  }
+  .msg.issy .bubble {
+    background: var(--issy-bubble); border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+  }
+  .msg.user .bubble {
+    background: var(--user-bubble); border: 1px solid #253a7a;
+    border-top-right-radius: 4px;
+  }
+
+  /* Thinking dots */
+  .thinking { display: flex; align-items: center; gap: 5px; padding: 12px 14px; }
+  .thinking span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  .thinking span:nth-child(2) { animation-delay: 0.2s; background: var(--accent2); }
+  .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ── Input area ── */
+  .input-area {
+    padding: 12px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .input-box {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    font-family: 'Sora', sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-box:focus { border-color: var(--accent); }
+
+  .send-btn {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    transition: transform 0.15s;
+  }
+  .send-btn:hover { transform: scale(1.05); }
+
+  /* ── Action log — fixed height, newest on top ── */
+  .action-log {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 8px 16px 10px;
+    height: 120px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .action-log::-webkit-scrollbar { width: 3px; }
+  .action-log::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .log-toolbar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px; flex-shrink: 0;
+  }
+
+  .log-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 6px; flex: 1;
+  }
+  .log-label::before {
+    content: ''; width: 3px; height: 3px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .save-log-btn {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 9px;
+    font-size: 10px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .save-log-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Log entries container — newest on top via prepend */
+  #logEntries { flex: 1; overflow-y: auto; }
+  #logEntries::-webkit-scrollbar { width: 0; }
+
+  .log-entry {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 0;
+    opacity: 0; transform: translateX(-8px);
+    transition: opacity 0.3s, transform 0.3s;
+    color: var(--muted);
+  }
+  .log-entry.show { opacity: 1; transform: translateX(0); }
+  .log-icon { font-size: 12px; }
+
+  .log-entry .tag {
+    padding: 1px 7px; border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .tag.wfm      { background: #1a2f5c; color: #6aaeff; }
+  .tag.outlook  { background: #0f2f50; color: #3ea8f5; }
+  .tag.afas     { background: #2a1a3a; color: #b47eff; }
+  .tag.cobot    { background: #1a3a2a; color: var(--green); }
+  .tag.bidfood  { background: #3a2a0f; color: #ffb84d; }
+  .tag.coupa    { background: #3a1a1a; color: #ff7a7a; }
+  .tag.esprit   { background: #1a3a3a; color: #4dffdd; }
+  .tag.iot      { background: #1f2a45; color: #7aadff; }
+
+  .highlight { color: var(--accent); font-weight: 600; }
+  .highlight-green { color: var(--green); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="avatar">
+    <div class="avatar-pulse"></div>
+    Is
+  </div>
+  <div class="header-info">
+    <h1>Issy</h1>
+    <div class="status">
+      <div class="status-dot"></div>
+      Online · Smart FM AI Assistant
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="sound-toggle on" id="soundToggle" onclick="toggleSound()">
+      <span id="soundIcon">🔊</span> Sound on
+    </button>
+    <!-- Demo control: ▶ Start / ⏸ Pause / ↺ Restart -->
+    <button class="demo-btn" id="demoBtn" onclick="handleDemoBtn()">
+      <span class="btn-icon" id="demoBtnIcon">▶</span>
+      <span id="demoBtnLabel">Start</span>
+    </button>
+  </div>
+</div>
+
+<!-- Chat -->
+<div class="chat-area" id="chat"></div>
+
+<!-- Input -->
+<div class="input-area">
+  <input class="input-box" id="inputBox" type="text" placeholder="Ask Issy anything..." readonly />
+  <button class="send-btn">➤</button>
+</div>
+
+<!-- Action log -->
+<div class="action-log">
+  <div class="log-toolbar">
+    <div class="log-label">Actions performed by Issy</div>
+    <button class="save-log-btn">💾 Save log</button>
+  </div>
+  <div id="logEntries"></div>
+</div>
+
+<script>
+// ── Audio ─────────────────────────────────────────────────────────────────────
+const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let soundEnabled = true;
+
+function getCtx() {
+  if (!audioCtx) audioCtx = new AudioCtxClass();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Soft notification bell — gentle two-tone chime (bot message received)
+function playBotResponse() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx();
+    const now = ctx.currentTime;
+    const tone = (freq, vol, delay, decay) => {
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, now + delay);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now + delay);
+      g.gain.linearRampToValueAtTime(vol, now + delay + 0.005);
+      g.gain.setTargetAtTime(0, now + delay + 0.005, decay * 0.2);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + delay); o.stop(now + delay + decay + 0.1);
+    };
+    // Gentle two-note chime: E5 → G#5
+    tone(659,  0.12, 0,    0.6);
+    tone(830,  0.09, 0,    0.5);
+    tone(1047, 0.05, 0,    0.4);
+    tone(1046, 0.10, 0.08, 0.5); // soft second note
+  } catch(e) {}
+}
+
+// Soft single bleep — message sent by employee
+function playMessageSent() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getCtx();
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(880, now);
+    o.frequency.setValueAtTime(1100, now + 0.04);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.10, now + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now); o.stop(now + 0.14);
+  } catch(e) {}
+}
+
+// No sound for typing, no sound for action log
+function playKeyClick() {}
+function playActionLog() {}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundToggle');
+  document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+  btn.innerHTML = `<span id="soundIcon">${soundEnabled ? '🔊' : '🔇'}</span> Sound ${soundEnabled ? 'on' : 'off'}`;
+  btn.className = 'sound-toggle' + (soundEnabled ? ' on' : '');
+}
+
+// ── Script ────────────────────────────────────────────────────────────────────
+const script = [
+  {
+    user: "Hoi Issy, Anna heeft zich vandaag ziekgemeld.",
+    thinking: 1300,
+    issy: "Begrepen. Op basis van het rooster van vandaag zie ik dat er op dit moment één Anna staat ingepland — bedoel je <span class='highlight'>Anna Klaassen</span>, die de ochtendschoonmaak van 07:00–15:00 uitvoert?",
+    actions: [
+      { icon: "👤", tag: "wfm",     sys: "WFM", label: "Medewerkersprofiel opgezocht · Anna Klaassen" },
+      { icon: "📋", tag: "wfm",     sys: "WFM", label: "Actieve dienst opgehaald · 07:00–15:00 Ochtendronde" }
+    ]
+  },
+  {
+    user: "Ja, dat klopt.",
+    thinking: 1500,
+    issy: "Begrepen. Ik zie dat <span class='highlight-green'>Dennis van Dijk</span> beschikbaar is en gekwalificeerd is voor dezelfde werkzaamheden tijdens deze dienst. Zal ik Dennis inplannen om Anna's ochtendronde vandaag over te nemen?",
+    actions: [
+      { icon: "🔍", tag: "wfm", sys: "WFM", label: "Beschikbaarheid gecontroleerd · Dennis van Dijk · Geen conflicten" },
+      { icon: "✅", tag: "wfm", sys: "WFM", label: "Match op vaardigheden bevestigd · Gekwalificeerd voor ochtendronde" }
+    ]
+  },
+  {
+    user: "Ja, graag.",
+    thinking: 1800,
+    issy: "Geregeld. Ik heb Dennis ingepland voor de ochtendronde. Ik bel hem nu om dit te bevestigen en er is een bevestigingsmail verstuurd naar zowel Dennis als jouw teamleider.",
+    actions: [
+      { icon: "📅", tag: "wfm",     sys: "WFM",     label: "Dienst toegewezen · Dennis van Dijk · 07:00–15:00" },
+      { icon: "📞", tag: "wfm",     sys: "WFM",     label: "Uitgaand gesprek gestart · Dennis van Dijk" },
+      { icon: "📧", tag: "outlook", sys: "Outlook", label: "Bevestigingsmail verstuurd · Dennis + Teamleider" },
+      { icon: "📝", tag: "afas",    sys: "AFAS",    label: "Afwezigheid geregistreerd · Anna Klaassen · Ziekmelding" }
+    ]
+  },
+  {
+    user: "Top, bedankt. Komt er nog iets aan waar ik rekening mee moet houden?",
+    thinking: 2200,
+    issy: "Ja — als ik vooruitkijk naar <span class='highlight'>volgende donderdag</span>, signaleren onze IoT-sensoren en reserveringsgegevens nu al een drukkere dag. Dit zie ik aankomen en dit stel ik voor om te regelen:\n\n<span class='highlight'>↑ Hogere bezetting verwacht</span> · Het aantal bezoekers wordt geschat op <span class='highlight-green'>34% boven het gemiddelde</span>, op basis van bevestigde reserveringen en patronen in badge-toegang.\n\n<span class='highlight'>🤖 Schoonmaakrobots</span> · Ik plan extra geautomatiseerde schoonmaakrondes in tijdens momenten met weinig beweging, op basis van de vloersensoren. Zo blijft het gebouw op niveau zonder medewerkers en bezoekers te storen.\n\n<span class='highlight'>🌡️ Klimaatsysteem</span> · Ik pas het HVAC-schema vooraf aan, zodat alle verdiepingen al op een comfortabele temperatuur zijn voordat de eerste mensen arriveren. Door de hogere bezetting ontstaat meer warmte, daarom start de koeling eerder dan normaal.\n\n<span class='highlight'>🛒 Catering & voorraden</span> · Ik plaats een aanvullende bestelling bij onze leverancier om voldoende lunch en snacks beschikbaar te hebben voor het hogere aantal aanwezigen. Daarnaast informeer ik het keukenteam en de cateringmedewerkers vooraf.\n\n<span class='highlight'>📶 Gast-Wi-Fi</span> · Ik neem contact op met onze netwerkleverancier om de bandbreedte van het gastnetwerk tijdelijk te verhogen, zodat alle bezoekers zonder problemen verbinding kunnen maken.\n\nZal ik dit allemaal voor je regelen?",
+    actions: [
+      { icon: "📡", tag: "iot",     sys: "IoT",     label: "Bezoekersprognose · +34% donderdag · Hoge betrouwbaarheid" },
+      { icon: "📅", tag: "wfm",     sys: "WFM",     label: "Ruimtereserveringen geanalyseerd · 18 bevestigde sessies" },
+      { icon: "🌡️", tag: "iot",    sys: "IoT",     label: "HVAC-model berekend · Vooraf koelen op basis van bezetting" },
+      { icon: "📊", tag: "bidfood", sys: "Bidfood", label: "Cateringbehoefte aangepast · +34% verwacht aantal aanwezigen" }
+    ]
+  },
+  {
+    user: "Ja, akkoord.",
+    thinking: 1400,
+    issy: "Perfect. Voor de cateringbestelling maak ik een <span class='highlight'>Purchase Order in Coupa</span> aan bij onze voorkeursleverancier. Geef je goedkeuring voor de PO voor de extra lunch en voorraden?",
+    actions: [
+      { icon: "🤖", tag: "cobot",   sys: "Cobot",   label: "Planning schoonmaakrobot aangepast · Extra rondes op donderdag" },
+      { icon: "🌡️", tag: "iot",    sys: "IoT",     label: "HVAC vooraf koelen ingepland · Donderdag 06:30" },
+      { icon: "📧", tag: "outlook", sys: "Outlook", label: "Keuken- en cateringteam geïnformeerd · Briefing donderdag" }
+    ]
+  },
+  {
+    user: "Ja, doe maar.",
+    thinking: 1200,
+    issy: "Mooi. Nog één ding — om de gast-Wi-Fi te upgraden stuur ik onze netwerkleverancier een e-mail met het verzoek om de bandbreedte voor donderdag tijdelijk te verhogen. Geef je toestemming om die e-mail namens jou te versturen?",
+    actions: [
+      { icon: "🧾", tag: "coupa", sys: "Coupa", label: "PO aangemaakt · Cateringbestelling donderdag · Bidfood" }
+    ]
+  },
+  {
+    user: "Ja, dat is prima.",
+    thinking: 1600,
+    issy: "Alles is geregeld. ✅\n\nZodra ik de bevestiging van de leverancier en een offerte voor de netwerkupgrade ontvang, deel ik de kosten met je ter goedkeuring. Na jouw akkoord maak ik hiervoor ook een PO aan in Coupa.\n\nVerder zijn er geen aandachtspunten voor donderdag. Kan ik je nog ergens anders mee helpen?",
+    actions: [
+      { icon: "📧", tag: "esprit", sys: "Esprit", label: "E-mail verstuurd · Verzoek verhoging netwerkbandbreedte · Donderdag" },
+      { icon: "🔔", tag: "coupa",  sys: "Coupa",  label: "Goedkeuringsworkflow klaargezet · Wacht op offerte leverancier" }
+    ]
+  },
+  {
+    user: "Nee, dat was alles. Bedankt Issy!",
+    thinking: 900,
+    issy: "Graag gedaan! Fijne dag. Ik houd je op de hoogte zodra de bevestigingen binnenkomen. 👋",
+    actions: []
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let demoState = 'idle'; // idle | running | paused | done
+let pauseResolve = null;
+let abortDemo = false;
+
+function sleep(ms) {
+  return new Promise(resolve => {
+    const id = setTimeout(() => {
+      if (!abortDemo) resolve();
+    }, ms);
+    // store for potential cancel
+  });
+}
+
+function waitIfPaused() {
+  return new Promise(resolve => {
+    if (demoState !== 'paused') { resolve(); return; }
+    pauseResolve = resolve;
+  });
+}
+
+// ── Render helpers ────────────────────────────────────────────────────────────
+const chat = document.getElementById('chat');
+const inputEl = document.getElementById('inputBox');
+const logEntriesEl = document.getElementById('logEntries');
+
+function addMessage(role, html) {
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+  const ava = document.createElement('div');
+  ava.className = 'msg-avatar';
+  ava.textContent = role === 'issy' ? 'Is' : '👤';
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = html.replace(/\n/g, '<br>');
+  wrap.appendChild(ava);
+  wrap.appendChild(bub);
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+  requestAnimationFrame(() => setTimeout(() => wrap.classList.add('visible'), 20));
+  return bub;
+}
+
+function showThinking() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg issy visible';
+  const ava = document.createElement('div');
+  ava.className = 'msg-avatar'; ava.textContent = 'Is';
+  const bub = document.createElement('div');
+  bub.className = 'bubble thinking';
+  bub.innerHTML = '<span></span><span></span><span></span>';
+  wrap.appendChild(ava); wrap.appendChild(bub);
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+  return wrap;
+}
+
+// Bot message appears all at once (like ChatGPT renders a complete block)
+function showBotMessage(text) {
+  const bub = addMessage('issy', text);
+  // Already rendered fully by addMessage
+  return Promise.resolve();
+}
+
+function typeInput(text) {
+  return new Promise(resolve => {
+    inputEl.value = '';
+    let i = 0;
+    function next() {
+      if (abortDemo) { resolve(); return; }
+      if (demoState === 'paused') { pauseResolve = next; return; }
+      if (i >= text.length) { resolve(); return; }
+      inputEl.value += text[i++];
+      // No sound while typing
+      setTimeout(next, 60 + Math.random() * 35);
+    }
+    next();
+  });
+}
+
+// Add log entry at TOP (prepend = newest first)
+function addLogEntry(entry) {
+  const el = document.createElement('div');
+  el.className = 'log-entry';
+  el.innerHTML = `<span class="log-icon">${entry.icon}</span><span class="tag ${entry.tag}">${entry.sys}</span><span>${entry.label}</span>`;
+  // Prepend so newest appears at top
+  logEntriesEl.insertBefore(el, logEntriesEl.firstChild);
+  setTimeout(() => el.classList.add('show'), 30);
+}
+
+function pauseableSleep(ms) {
+  return new Promise(resolve => {
+    const step = 50;
+    let elapsed = 0;
+    function tick() {
+      if (abortDemo) { resolve(); return; }
+      if (demoState === 'paused') {
+        pauseResolve = () => { pauseResolve = null; tick(); };
+        return;
+      }
+      elapsed += step;
+      if (elapsed >= ms) { resolve(); return; }
+      setTimeout(tick, step);
+    }
+    tick();
+  });
+}
+
+// ── Demo control ──────────────────────────────────────────────────────────────
+function updateDemoBtn(state) {
+  const btn = document.getElementById('demoBtn');
+  const icon = document.getElementById('demoBtnIcon');
+  const label = document.getElementById('demoBtnLabel');
+  if (state === 'idle' || state === 'done') {
+    icon.textContent = '▶'; label.textContent = demoState === 'done' ? 'Restart' : 'Start';
+  } else if (state === 'running') {
+    icon.textContent = '⏸'; label.textContent = 'Pause';
+  } else if (state === 'paused') {
+    icon.textContent = '▶'; label.textContent = 'Resume';
+  }
+}
+
+function handleDemoBtn() {
+  getCtx(); // unlock audio on user gesture
+  if (demoState === 'idle' || demoState === 'done') {
+    // Reset and start
+    abortDemo = false;
+    chat.innerHTML = '';
+    logEntriesEl.innerHTML = '';
+    inputEl.value = '';
+    demoState = 'running';
+    updateDemoBtn('running');
+    runDemo().then(() => {
+      demoState = 'done';
+      updateDemoBtn('done');
+    });
+  } else if (demoState === 'running') {
+    demoState = 'paused';
+    updateDemoBtn('paused');
+  } else if (demoState === 'paused') {
+    demoState = 'running';
+    updateDemoBtn('running');
+    if (pauseResolve) { const r = pauseResolve; pauseResolve = null; r(); }
+  }
+}
+
+// ── Main loop ─────────────────────────────────────────────────────────────────
+async function runDemo() {
+  await pauseableSleep(400);
+
+  for (const step of script) {
+    if (abortDemo) return;
+
+    // Type user message in input field
+    await typeInput(step.user);
+    await pauseableSleep(300);
+    if (abortDemo) return;
+
+    // Show user message bubble + bleep sound
+    playMessageSent();
+    addMessage('user', step.user);
+    inputEl.value = '';
+    await pauseableSleep(500);
+    if (abortDemo) return;
+
+    // Thinking dots
+    const thinkEl = showThinking();
+    await pauseableSleep(step.thinking);
+    if (abortDemo) return;
+
+    // Remove thinking, show bot message instantly + notification chime
+    thinkEl.remove();
+    playBotResponse();
+    await showBotMessage(step.issy);
+    await pauseableSleep(500);
+    if (abortDemo) return;
+
+    // Actions in log (newest on top)
+    for (const action of step.actions) {
+      await pauseableSleep(280);
+      if (abortDemo) return;
+      addLogEntry(action);
+    }
+
+    await pauseableSleep(1800);
+    if (abortDemo) return;
+  }
+}
+</script>
+</body>
+</html>
